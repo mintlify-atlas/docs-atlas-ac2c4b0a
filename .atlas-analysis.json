@@ -1,0 +1,106 @@
+{
+  "projectType": "general",
+  "projectName": "Serenity Valley Game",
+  "projectDescription": "A simple pygame-based demonstration game showcasing custom UI widgets, animations, and 2D vector mathematics",
+  "theme": "mint",
+  "primaryColor": "#0c840c",
+  "lightColor": "#7cbc7c",
+  "darkColor": "#c4e2c4",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/game-loop",
+              "concepts/architecture"
+            ]
+          },
+          {
+            "group": "Widgets",
+            "pages": [
+              "widgets/overview",
+              "widgets/box",
+              "widgets/messageboard",
+              "widgets/button",
+              "widgets/images",
+              "widgets/text-entry",
+              "widgets/moving-objects"
+            ]
+          },
+          {
+            "group": "Utilities",
+            "pages": [
+              "utilities/vec2d",
+              "utilities/timer",
+              "utilities/animation"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Core",
+            "pages": [
+              "api/game",
+              "api/vec2d",
+              "api/utils"
+            ]
+          },
+          {
+            "group": "Widget Classes",
+            "pages": [
+              "api/widgets/box",
+              "api/widgets/messageboard",
+              "api/widgets/button",
+              "api/widgets/images",
+              "api/widgets/text-entry",
+              "api/widgets/moving-rect",
+              "api/widgets/moving-img",
+              "api/widgets/circles"
+            ]
+          },
+          {
+            "group": "Animation",
+            "pages": [
+              "api/animation"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Custom pygame UI widgets (Box, MessageBoard, Button, Images)",
+    "2D vector mathematics library with comprehensive operations",
+    "Interactive text entry and toggle buttons",
+    "Moving objects and animation system",
+    "Grid-based game field with coordinate conversion",
+    "Timer utilities for periodic callbacks"
+  ],
+  "publicApiSurface": [
+    "Game",
+    "vec2d",
+    "Box",
+    "MessageBoard",
+    "Button",
+    "Images",
+    "textEntry",
+    "movingRect",
+    "movingImg",
+    "circles",
+    "SimpleAnimation",
+    "Timer"
+  ]
+}
