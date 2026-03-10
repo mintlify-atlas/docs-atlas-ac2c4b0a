@@ -1,0 +1,304 @@
+---
+title: Architecture
+description: Understanding the project structure and component organization in Serenity Valley
+---
+
+Serenity Valley follows a modular architecture with clear separation between game logic, utilities, and UI widgets.
+
+## Project Structure
+
+The codebase is organized into several key modules:
+
+```
+source/
+├── game.py              # Main game class and entry point
+├── widgets.py           # UI widget components
+├── vec2d.py             # 2D vector mathematics
+├── utils.py             # Utility classes (Timer)
+└── simpleanimation.py   # Animation system
+```
+
+## Core Components
+
+### Game Class
+
+The `Game` class (game.py:16-258) is the central controller that manages all game systems:
+
+```python
+class Game(object):
+    # Game parameters
+    BG_TILE_IMG = 'images/wood2.png'
+    BUTTON_BGIMG = 'images/x.png'
+    SCREEN_WIDTH, SCREEN_HEIGHT = 580, 500
+    GRID_SIZE = 20
+    FIELD_SIZE = 400, 400
+```
+
+<Note>
+Game parameters are defined as class variables, making them globally accessible throughout the game instance.
+</Note>
+
+### Initialization
+
+The Game constructor (game.py:29-137) sets up all game systems:
+
+```python
+def __init__(self):
+    pygame.init()
+    
+    # Set up screen and background
+    self.screen = pygame.display.set_mode(
+                    (self.SCREEN_WIDTH, self.SCREEN_HEIGHT), 0, 32)
+    self.tile_img = pygame.image.load(self.BG_TILE_IMG).convert_alpha()
+    
+    # Initialize clock and game state
+    self.clock = pygame.time.Clock()
+    self.paused = False
+```
+
+## Widget System
+
+Widgets are reusable UI components defined in `widgets.py`. Each widget:
+
+- Receives a `surface` parameter (the screen) in its constructor
+- Implements a `draw()` method for rendering
+- Manages its own state and appearance
+
+### Widget Types
+
+| Widget | Purpose | File Location |
+|--------|---------|---------------|
+| `Box` | Rectangular container with borders | widgets.py:22-68 |
+| `MessageBoard` | Text display board | widgets.py:71-143 |
+| `Button` | Interactive clickable buttons | widgets.py:146-218 |
+| `Images` | Static or animated images | widgets.py:220-252 |
+| `textEntry` | User text input | widgets.py:254-315 |
+| `movingRect` | Animated rectangles | widgets.py:317-337 |
+| `movingImg` | Animated images | widgets.py:339-358 |
+| `circles` | Circle primitives | widgets.py:360-369 |
+
+### Widget Instantiation
+
+Widgets are created during game initialization. Here's an example of creating a MessageBoard:
+
+```python
+self.tboard = MessageBoard(self.screen,
+    rect=self.tboard_rect,
+    bgcolor=self.tboard_bgcolor,
+    border_width=4,
+    border_color=pygame.Color('black'),
+    text=self.tboard_text,
+    padding=5,
+    font=('comic sans', 18),
+    font_color=pygame.Color('yellow'))
+```
+
+And a Button widget:
+
+```python
+self.button = Button(self.screen,
+    pos=vec2d(self.tboard_width, self.tboard_y-15),
+    btntype='Close',
+    imgnames=self.button_bgimgs,
+    attached=self.tboard)
+```
+
+## The World List Pattern
+
+Serenity Valley uses a **world list** pattern for managing and rendering game objects:
+
+```python
+self.world = [self.button, self.togglebtn, self.clockImg, 
+              self.hand, self.textTest, self.moveImg, 
+              self.floater, self.ball]
+```
+
+### Rendering the World
+
+All objects in the world list are drawn each frame:
+
+```python
+for obj in self.world:
+    obj.draw()
+```
+
+<Tip>
+The world list provides a simple but effective way to manage render order. Objects are drawn in list order, with later objects appearing on top.
+</Tip>
+
+### Organized Collections
+
+Some widgets are also stored in specialized lists for event handling:
+
+```python
+self.buttons = [self.togglebtn]
+self.textEntries = [self.textTest]
+```
+
+These collections allow targeted event dispatching:
+
+```python
+for button in self.buttons:
+    button.mouse_click_event(event.pos)
+for entry in self.textEntries:
+    entry.mouse_click_event(event.pos)
+```
+
+## Coordinate Systems
+
+The game uses two coordinate systems:
+
+### 1. Pixel Coordinates
+
+Direct screen positions measured in pixels from the top-left corner (0, 0).
+
+### 2. Grid Coordinates
+
+Grid-based coordinates using rows and columns:
+
+```python
+self.GRID_SIZE = 20
+self.grid_nrows = 30
+self.grid_ncols = 30
+```
+
+### Coordinate Conversion
+
+The Game class provides methods to convert between systems:
+
+#### Pixel to Grid
+
+```python
+def xy2coord(self, pos):
+    """ Convert a (x, y) pair to a (nrow, ncol) coordinate
+    """
+    x, y = (pos[0] - self.field_rect.left, pos[1] - self.field_rect.top)
+    return (int(y) / self.GRID_SIZE, int(x) / self.GRID_SIZE)
+```
+
+#### Grid to Pixel (Center)
+
+```python
+def coord2xy_mid(self, coord):
+    """ Convert a (nrow, ncol) coordinate to a (x, y) pair,
+        where x,y is the middle of the square at the coord
+    """
+    nrow, ncol = coord
+    return (
+        self.field_rect.left + ncol * self.GRID_SIZE + self.GRID_SIZE / 2, 
+        self.field_rect.top + nrow * self.GRID_SIZE + self.GRID_SIZE / 2)
+```
+
+<Note>
+`coord2xy_mid()` returns the **center** of a grid cell, which is useful for centering sprites or objects within grid spaces.
+</Note>
+
+## Utility Modules
+
+### vec2d - 2D Vector Math
+
+The `vec2d` class (vec2d.py:5-330) provides comprehensive 2D vector operations:
+
+```python
+class vec2d(object):
+    """2d vector class, supports vector and scalar operators,
+       and also provides a bunch of high level functions
+    """
+    __slots__ = ['x', 'y']
+    
+    def __init__(self, x_or_pair, y = None):
+        if y == None:
+            self.x = x_or_pair[0]
+            self.y = x_or_pair[1]
+        else:
+            self.x = x_or_pair
+            self.y = y
+```
+
+Used throughout the codebase for positions and velocities:
+
+```python
+self.button = Button(self.screen,
+    pos=vec2d(self.tboard_width, self.tboard_y-15),
+    btntype='Close',
+    imgnames=self.button_bgimgs,
+    attached=self.tboard)
+```
+
+### Timer - Event Scheduling
+
+The `Timer` class (utils.py:2-37) provides interval-based callbacks:
+
+```python
+class Timer(object):
+    """ A Timer that can periodically call a given callback 
+        function.
+    """
+    def __init__(self, interval, callback, oneshot=False):
+        self.interval = interval
+        self.callback = callback
+        self.oneshot = oneshot
+        self.time = 0
+        self.alive = True
+```
+
+Used in the animation system (simpleanimation.py:32-33):
+
+```python
+self.scroll_timer = Timer(scroll_period, self._advance_img)
+self.active_timer = Timer(duration, self._inactivate, True)
+```
+
+## Drawing System
+
+The game uses a layered drawing approach:
+
+```python
+def draw(self):
+    # Draw background image
+    self.draw_background()
+    
+    # Decide if we should draw grid
+    if self.options['draw_grid']:
+        self.draw_grid()
+        
+    self.tboard.draw()
+    
+    for obj in self.world:
+        obj.draw()
+```
+
+### Background Tiling
+
+The background is drawn by tiling an image across the screen:
+
+```python
+def draw_background(self):
+    img_rect = self.tile_img.get_rect()
+    nrows = int(self.screen.get_height() / img_rect.height) + 1
+    ncols = int(self.screen.get_width() / img_rect.width) + 1
+    
+    for y in range(nrows):
+        for x in range(ncols):
+            img_rect.topleft = (x * img_rect.width, 
+                                y * img_rect.height)
+            self.screen.blit(self.tile_img, img_rect)
+```
+
+<Tip>
+The tiling algorithm calculates the number of rows and columns needed to cover the screen, then blits the tile image in a grid pattern.
+</Tip>
+
+## Entry Point
+
+The game starts through the standard Python entry point:
+
+```python
+if __name__ == "__main__":
+    print "Creating game object..."
+    game = Game()
+    print "Done. Starting run method"
+    game.run()
+```
+
+This creates a Game instance and starts the main loop immediately.

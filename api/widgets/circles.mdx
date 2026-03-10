@@ -1,0 +1,77 @@
+---
+title: 'circles'
+description: 'Simple circular shape widget'
+---
+
+## Overview
+
+The `circles` class creates a simple, static circular shape on the screen. As noted in the source code, it's described as "a simple useless circle" - primarily for testing and basic visual elements.
+
+## Constructor
+
+```python
+circles(surface, pos=vec2d(10,10), radius=5, bgcolor=(0,0,0))
+```
+
+### Parameters
+
+<ParamField path="surface" type="pygame.Surface" required>
+  The pygame surface to which the circle will be drawn.
+</ParamField>
+
+<ParamField path="pos" type="vec2d" default="vec2d(10,10)">
+  The center position of the circle.
+</ParamField>
+
+<ParamField path="radius" type="int" default="5">
+  The radius of the circle in pixels.
+</ParamField>
+
+<ParamField path="bgcolor" type="tuple" default="(0,0,0)">
+  RGB color tuple for the circle (default is black).
+</ParamField>
+
+## Methods
+
+### draw()
+
+Draws the circle to the surface at the specified position.
+
+```python
+def draw(self)
+```
+
+Simply renders the circle using `pygame.draw.circle()` with the configured position, radius, and color.
+
+## Attributes
+
+- `surface` - The pygame surface to draw on
+- `pos` - Center position as vec2d
+- `radius` - Circle radius in pixels
+- `bgcolor` - RGB color tuple for the circle
+
+## Usage Example
+
+From `game.py`:
+
+```python
+ball = circles(screen,
+    pos=vec2d(25, 25),
+    radius=25)
+
+# Add to world objects list
+world = [button, togglebtn, clockImg, hand, textTest, moveImg, floater, ball]
+
+# In game loop
+for obj in world:
+    obj.draw()
+```
+
+## Notes
+
+- The circle is static and does not move on its own
+- Unlike `movingRect`, this widget has no built-in animation or movement
+- Default radius is 5 pixels
+- Default color is black (0, 0, 0)
+- Position represents the circle's center point, not top-left corner
+- Useful for markers, dots, or simple visual elements

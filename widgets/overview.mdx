@@ -1,0 +1,105 @@
+---
+title: Widget System Overview
+description: Learn about Serenity Valley's GUI widget system for building user interfaces
+---
+
+The widget system provides a collection of GUI components for building interactive interfaces in Pygame. All widgets share common patterns and are designed to be easy to use and extend.
+
+## Available Widgets
+
+<CardGroup cols={2}>
+  <Card title="Box" icon="square" href="/widgets/box">
+    Rectangular container with optional borders and background colors
+  </Card>
+  
+  <Card title="MessageBoard" icon="message" href="/widgets/messageboard">
+    Text display board for showing multi-line messages
+  </Card>
+  
+  <Card title="Button" icon="hand-pointer" href="/widgets/button">
+    Interactive buttons with click events and toggle states
+  </Card>
+  
+  <Card title="Images" icon="image" href="/widgets/images">
+    Static or animated image display (like spinners)
+  </Card>
+  
+  <Card title="Text Entry" icon="keyboard" href="/widgets/text-entry">
+    Input field for capturing user text
+  </Card>
+  
+  <Card title="Moving Objects" icon="arrows" href="/widgets/moving-objects">
+    Animated rectangles, images, and circles with collision detection
+  </Card>
+</CardGroup>
+
+## Common Patterns
+
+### Surface Parameter
+
+Most widgets receive a `surface` argument in the constructor. This is the pygame surface to which the widget will draw itself when its `draw()` method is called.
+
+```python
+self.screen = pygame.display.set_mode((580, 500), 0, 32)
+widget = SomeWidget(self.screen, ...)
+```
+
+### Position and Rectangles
+
+Widgets use two main approaches for positioning:
+
+- **pygame.Rect**: Used by Box and MessageBoard for defining rectangular areas
+- **vec2d**: Used by interactive widgets like Button and textEntry for simpler positioning
+
+```python
+# Using pygame.Rect
+rect = pygame.Rect(120, 120, 125, 30)  # x, y, width, height
+widget = MessageBoard(surface, rect=rect, ...)
+
+# Using vec2d
+from vec2d import vec2d
+pos = vec2d(250, 250)
+button = Button(surface, pos=pos, ...)
+```
+
+### Colors
+
+Colors can be specified as:
+- `pygame.Color` objects: `pygame.Color('yellow')` or `pygame.Color(50, 20, 0)`
+- RGB tuples: `(255, 255, 255)`
+
+### Drawing Widgets
+
+All widgets implement a `draw()` method that must be called each frame:
+
+```python
+def draw(self):
+    self.draw_background()
+    
+    for obj in self.world:
+        obj.draw()
+    
+    pygame.display.flip()
+```
+
+## Widget Lifecycle
+
+1. **Initialization**: Create widget with surface and parameters
+2. **Event Handling**: Process user input (for interactive widgets)
+3. **Drawing**: Call `draw()` method each frame to render
+
+<Note>
+  Unless otherwise specified, all rectangles are `pygame.Rect` instances, and all colors are `pygame.Color` instances.
+</Note>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Box Widget" href="/widgets/box">
+    Learn about the basic rectangular container
+  </Card>
+  
+  <Card title="MessageBoard" href="/widgets/messageboard">
+    Display text messages to users
+  </Card>
+</CardGroup>

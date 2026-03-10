@@ -1,0 +1,193 @@
+---
+title: 'SimpleAnimation'
+description: 'A simple animation class for cycling through images'
+---
+
+## Overview
+
+The `SimpleAnimation` class provides a simple way to create animations by cyclically scrolling through a list of images and drawing them onto the screen at the same position. The animation can run indefinitely or for a specified duration.
+
+## Class: SimpleAnimation
+
+### Constructor
+
+```python
+SimpleAnimation(screen, pos, images, scroll_period, duration=-1)
+```
+
+Creates a new animation instance.
+
+<ParamField path="screen" type="pygame.Surface" required>
+  The screen surface to which the animation will be drawn
+</ParamField>
+
+<ParamField path="pos" type="tuple" required>
+  Position on the screen as a tuple (x, y) where the animation will be rendered
+</ParamField>
+
+<ParamField path="images" type="list" required>
+  A list of pygame surface objects to cyclically scroll through during the animation
+</ParamField>
+
+<ParamField path="scroll_period" type="int" required>
+  Scrolling period in milliseconds - controls how fast the animation cycles through images
+</ParamField>
+
+<ParamField path="duration" type="int" default="-1">
+  Duration of the animation in milliseconds. If -1, the animation will have indefinite duration
+</ParamField>
+
+## Methods
+
+### is_active()
+
+```python
+def is_active(self)
+```
+
+Checks whether the animation is currently active.
+
+**Returns:** `bool` - True if the animation is active, False otherwise
+
+An animation is active from the moment of its creation and until the duration has passed (if a duration was specified).
+
+---
+
+### update()
+
+```python
+def update(self, time_passed)
+```
+
+Updates the animation's internal state based on elapsed time.
+
+<ParamField path="time_passed" type="int" required>
+  The time passed in milliseconds since the previous update
+</ParamField>
+
+This method should be called once per frame in your game loop to advance the animation timers.
+
+---
+
+### draw()
+
+```python
+def draw(self)
+```
+
+Draws the current animation frame onto the screen.
+
+This method renders the current image from the animation sequence at the position specified during initialization. It only draws if the animation is active.
+
+---
+
+### _inactivate()
+
+```python
+def _inactivate(self)
+```
+
+**Internal method** - Deactivates the animation when the duration expires.
+
+This method is called automatically by the internal timer and should not be called directly.
+
+---
+
+### _advance_img()
+
+```python
+def _advance_img(self)
+```
+
+**Internal method** - Advances to the next image in the animation sequence.
+
+This method is called automatically by the scroll timer to cycle through images and should not be called directly.
+
+## Usage Example
+
+### Basic Explosion Animation
+
+```python
+import pygame
+from simpleanimation import SimpleAnimation
+
+# Initialize pygame and create screen
+pygame.init()
+screen = pygame.display.set_mode((300, 300), 0, 32)
+clock = pygame.time.Clock()
+
+# Load and prepare animation images
+explosion_img = pygame.image.load('images/explosion1.png').convert_alpha()
+images = [explosion_img, pygame.transform.rotate(explosion_img, 90)]
+
+# Create animation: cycles every 100ms, lasts 2120ms total
+explosion = SimpleAnimation(screen, (100, 100), images, 100, 2120)
+
+# Game loop
+while True:
+    time_passed = clock.tick(50)
+    screen.fill((0, 0, 0))
+    
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            break
+    
+    # Update and draw animation
+    explosion.update(time_passed)
+    explosion.draw()
+    
+    pygame.display.flip()
+```
+
+### Indefinite Animation
+
+```python
+# Create an animation that runs forever
+idle_frames = [frame1, frame2, frame3, frame4]
+idle_animation = SimpleAnimation(
+    screen=game_screen,
+    pos=(50, 50),
+    images=idle_frames,
+    scroll_period=150,
+    duration=-1  # Runs indefinitely
+)
+
+# In your game loop
+if idle_animation.is_active():
+    idle_animation.update(time_delta)
+    idle_animation.draw()
+```
+
+### Multiple Animations
+
+```python
+# Create multiple animations with different durations and speeds
+animations = []
+
+# Fast explosion (50ms per frame, 1 second total)
+fast_explosion = SimpleAnimation(screen, (100, 100), explosion_frames, 50, 1000)
+animations.append(fast_explosion)
+
+# Slow glow effect (300ms per frame, 3 seconds total)
+glow_effect = SimpleAnimation(screen, (200, 200), glow_frames, 300, 3000)
+animations.append(glow_effect)
+
+# Game loop
+while running:
+    time_passed = clock.tick(60)
+    screen.fill((0, 0, 0))
+    
+    # Update and draw all active animations
+    for anim in animations:
+        if anim.is_active():
+            anim.update(time_passed)
+            anim.draw()
+    
+    pygame.display.flip()
+```
+
+## Dependencies
+
+- **pygame**: Required for surface rendering and display operations
+- **utils.Timer**: Internal timer utility for managing animation timing

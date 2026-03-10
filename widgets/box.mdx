@@ -1,0 +1,107 @@
+---
+title: Box Widget
+description: Rectangular container with optional borders and background colors
+---
+
+The `Box` widget provides a simple rectangular container with a background color and optional border. It includes the concept of an "internal rect" - the area inside the border.
+
+## Constructor
+
+```python
+Box(surface, rect, bgcolor, border_width=0, border_color=Color('black'))
+```
+
+### Parameters
+
+<ParamField path="surface" type="pygame.Surface" required>
+  The pygame surface to which the widget will draw itself
+</ParamField>
+
+<ParamField path="rect" type="pygame.Rect" required>
+  The outer rectangle defining the location and size of the box on the surface
+</ParamField>
+
+<ParamField path="bgcolor" type="pygame.Color" required>
+  The background color of the box
+</ParamField>
+
+<ParamField path="border_width" type="int" default="0">
+  Width of the border. If 0, no border is drawn. If > 0, the border is drawn inside the bounding rect of the widget (so take this into account when computing internal space of the box)
+</ParamField>
+
+<ParamField path="border_color" type="pygame.Color" default="Color('black')">
+  Color of the border
+</ParamField>
+
+## Methods
+
+### draw()
+
+Renders the box to the surface. Draws the border first, then the background.
+
+```python
+box.draw()
+```
+
+### get_internal_rect()
+
+Returns the internal rectangle of the box (the area inside the border).
+
+```python
+internal_rect = box.get_internal_rect()
+```
+
+## Usage Example
+
+The Box widget is commonly used as a base for other widgets. For example, the MessageBoard widget uses Box internally:
+
+```python widgets.py
+class MessageBoard(object):
+    def __init__(self, 
+            surface,
+            rect,
+            text,
+            padding,
+            font=('arial', 20),
+            font_color=Color('white'),
+            bgcolor=Color('gray25'),
+            border_width=0,
+            border_color=Color('black')):
+        # ...
+        self.box = Box(surface, rect, bgcolor, border_width, border_color)
+        
+    def draw(self):
+        # Draw the surrounding box
+        self.box.draw()
+        # ... draw text on top
+```
+
+## Implementation Details
+
+The Box widget calculates the internal rect by subtracting the border width from all sides:
+
+```python widgets.py
+# Internal rectangle
+self.in_rect = Rect(
+    self.rect.left + self.border_width,
+    self.rect.top + self.border_width,
+    self.rect.width - self.border_width * 2,
+    self.rect.height - self.border_width * 2)
+```
+
+The `draw()` method renders the border first (filling the entire rect), then draws the background color over it, leaving only the border visible around the edges:
+
+```python widgets.py
+def draw(self):
+    pygame.draw.rect(self.surface, self.border_color, self.rect)        
+    pygame.draw.rect(self.surface, self.bgcolor, self.in_rect)
+```
+
+<Note>
+  The border is drawn **inside** the bounding rect, not outside. This means a box with `width=100` and `border_width=5` will have an internal width of only 90 pixels.
+</Note>
+
+## Related Widgets
+
+- [MessageBoard](/widgets/messageboard) - Uses Box as a base for text display
+- [Moving Objects](/widgets/moving-objects) - MovingRect draws colored rectangles without using Box

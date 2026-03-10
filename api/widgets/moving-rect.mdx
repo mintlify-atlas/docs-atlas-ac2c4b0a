@@ -1,0 +1,96 @@
+---
+title: 'movingRect'
+description: 'Animated rectangular shape that bounces around the screen'
+---
+
+## Overview
+
+The `movingRect` class creates a colored rectangle that moves around the screen, bouncing off the edges. It supports velocity, gravity, and automatic boundary collision.
+
+## Constructor
+
+```python
+movingRect(surface, pos=vec2d(0,0), size=vec2d(20,20), color=(255,0,0), 
+           speed=vec2d(1,0), gravity=0)
+```
+
+### Parameters
+
+<ParamField path="surface" type="pygame.Surface" required>
+  The pygame surface to which the rectangle will be drawn.
+</ParamField>
+
+<ParamField path="pos" type="vec2d" default="vec2d(0,0)">
+  The initial position of the rectangle.
+</ParamField>
+
+<ParamField path="size" type="vec2d" default="vec2d(20,20)">
+  The width and height of the rectangle.
+</ParamField>
+
+<ParamField path="color" type="tuple" default="(255,0,0)">
+  RGB color tuple for the rectangle (default is red).
+</ParamField>
+
+<ParamField path="speed" type="vec2d" default="vec2d(1,0)">
+  The velocity vector (x, y) indicating movement speed and direction per frame.
+</ParamField>
+
+<ParamField path="gravity" type="int" default="0">
+  Gravity value (parameter defined but not currently implemented in draw method).
+</ParamField>
+
+## Methods
+
+### draw()
+
+Updates the rectangle's position, handles boundary collisions, and draws the rectangle.
+
+```python
+def draw(self)
+```
+
+Behavior:
+1. Checks if rectangle hits horizontal boundaries (left/right edges)
+   - Reverses X velocity if collision detected
+2. Checks if rectangle hits vertical boundaries (top/bottom edges)
+   - Reverses Y velocity if collision detected
+3. Updates position by adding speed vector
+4. Updates the rect object
+5. Draws the rectangle to the surface
+
+## Attributes
+
+- `pos` - Current position as vec2d
+- `size` - Dimensions as vec2d
+- `speed` - Velocity vector as vec2d
+- `color` - RGB color tuple
+- `rect` - The pygame.Rect used for drawing
+- `surfaceSize` - Size of the surface for boundary detection
+
+## Usage Example
+
+From `game.py`:
+
+```python
+floater = movingRect(screen,
+    pos=vec2d(SCREEN_WIDTH/2, 0),
+    speed=vec2d(0, 5))
+
+# Add to world objects list
+world = [button, togglebtn, clockImg, hand, textTest, moveImg, floater, ball]
+
+# In game loop
+for obj in world:
+    obj.draw()  # Automatically moves and bounces
+```
+
+## Notes
+
+- The rectangle automatically bounces when it hits any screen edge
+- Velocity reversal creates a "bounce" effect
+- The `gravity` parameter is defined but not currently implemented in the movement logic
+- Default size is 20x20 pixels
+- Default color is red (255, 0, 0)
+- Position and velocity are updated every frame when `draw()` is called
+- Uses vec2d for 2D vector operations

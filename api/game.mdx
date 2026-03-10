@@ -1,0 +1,167 @@
+---
+title: "Game"
+description: "Main game class that handles the game loop, rendering, and user input"
+---
+
+## Overview
+
+The `Game` class is the core class of Serenity Valley, responsible for initializing Pygame, managing the game loop, handling events, and rendering the game world.
+
+## Class Constants
+
+The following constants are defined at the class level:
+
+<ParamField path="BG_TILE_IMG" type="string" default="'images/wood2.png'">
+  Path to the background tile image
+</ParamField>
+
+<ParamField path="BUTTON_BGIMG" type="string" default="'images/x.png'">
+  Path to the button background image
+</ParamField>
+
+<ParamField path="SCREEN_WIDTH" type="int" default="580">
+  Width of the game screen in pixels
+</ParamField>
+
+<ParamField path="SCREEN_HEIGHT" type="int" default="500">
+  Height of the game screen in pixels
+</ParamField>
+
+<ParamField path="GRID_SIZE" type="int" default="20">
+  Size of each grid cell in pixels
+</ParamField>
+
+<ParamField path="FIELD_SIZE" type="tuple" default="(400, 400)">
+  Dimensions of the game field (width, height)
+</ParamField>
+
+## Constructor
+
+### \_\_init\_\_()
+
+Initializes the Game instance, setting up Pygame, the screen, background, widgets, buttons, and game objects.
+
+```python
+def __init__(self):
+```
+
+This method:
+- Initializes Pygame
+- Sets up the screen display
+- Loads the background tile image
+- Creates UI widgets (message boards, buttons, text entries)
+- Initializes the game clock and world objects
+- Sets up the grid configuration
+- Configures game options
+
+## Methods
+
+### xy2coord()
+
+Converts a pixel coordinate (x, y) to a grid coordinate (row, column).
+
+```python
+def xy2coord(self, pos):
+```
+
+<ParamField path="pos" type="tuple">
+  A tuple containing the (x, y) pixel position
+</ParamField>
+
+**Returns:** A tuple `(nrow, ncol)` representing the grid coordinate
+
+### coord2xy_mid()
+
+Converts a grid coordinate (row, column) to a pixel position (x, y) at the center of that grid cell.
+
+```python
+def coord2xy_mid(self, coord):
+```
+
+<ParamField path="coord" type="tuple">
+  A tuple containing the (nrow, ncol) grid coordinate
+</ParamField>
+
+**Returns:** A tuple `(x, y)` representing the pixel position at the center of the grid cell
+
+### get_field_rect()
+
+Returns the internal field rectangle, excluding borders.
+
+```python
+def get_field_rect(self):
+```
+
+**Returns:** A `pygame.Rect` object representing the internal game field
+
+### draw_background()
+
+Draws the tiled background image across the entire screen.
+
+```python
+def draw_background(self):
+```
+
+This method calculates how many rows and columns of tiles are needed to cover the screen and blits them accordingly.
+
+### draw_grid()
+
+Draws the grid lines on the game field.
+
+```python
+def draw_grid(self):
+```
+
+Draws horizontal and vertical lines based on `GRID_SIZE`, `grid_nrows`, and `grid_ncols`.
+
+### draw()
+
+The main drawing method that renders the entire game state.
+
+```python
+def draw(self):
+```
+
+This method:
+- Draws the background
+- Draws the grid (if enabled in options)
+- Draws the message board
+- Draws all objects in the world
+
+### run()
+
+The main game loop that handles events, updates game state, and renders frames.
+
+```python
+def run(self):
+```
+
+This method:
+- Limits the frame rate to 30 FPS
+- Processes user input events (keyboard, mouse)
+- Handles pause/unpause functionality
+- Updates game entities
+- Calls the draw method
+- Flips the display buffer
+
+**Keyboard Controls:**
+- `SPACE`: Toggle pause
+- `G`: Toggle grid visibility
+
+### quit()
+
+Exits the game application.
+
+```python
+def quit(self):
+```
+
+Calls `sys.exit()` to terminate the program.
+
+## Usage Example
+
+```python
+if __name__ == "__main__":
+    game = Game()
+    game.run()
+```

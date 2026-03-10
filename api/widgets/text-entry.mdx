@@ -1,0 +1,138 @@
+---
+title: 'textEntry'
+description: 'Interactive text input field widget'
+---
+
+## Overview
+
+The `textEntry` class creates an interactive text input field that allows users to type text. It captures keyboard input when clicked and displays the entered text.
+
+## Constructor
+
+```python
+textEntry(surface, pos=vec2d(0, 0), size=vec2d(200, 50), text="", 
+          textcolor=(0,0,0), padding=0, bgcolor=(255,255,255))
+```
+
+### Parameters
+
+<ParamField path="surface" type="pygame.Surface" required>
+  The pygame surface to which the text entry field will be drawn.
+</ParamField>
+
+<ParamField path="pos" type="vec2d" default="vec2d(0, 0)">
+  The position of the text entry field on the surface.
+</ParamField>
+
+<ParamField path="size" type="vec2d" default="vec2d(200, 50)">
+  The width and height of the text entry field.
+</ParamField>
+
+<ParamField path="text" type="str" default="">
+  The initial text to display in the field.
+</ParamField>
+
+<ParamField path="textcolor" type="tuple" default="(0,0,0)">
+  RGB color tuple for the text.
+</ParamField>
+
+<ParamField path="padding" type="int" default="0">
+  Padding around the text (currently defined but not fully utilized).
+</ParamField>
+
+<ParamField path="bgcolor" type="tuple" default="(255,255,255)">
+  RGB color tuple for the background (parameter defined but draw() uses hardcoded white).
+</ParamField>
+
+## Methods
+
+### draw()
+
+Draws the text entry field and handles keyboard input when the field is active.
+
+```python
+def draw(self)
+```
+
+Behavior:
+- Draws a white rectangle for the field background
+- When clicked (active), captures keyboard input:
+  - Single characters: Added to the text (with width constraint)
+  - Tab: Adds 4 spaces
+  - Space: Adds a space
+  - Backspace: Removes last character
+- Implements key repeat delay to prevent multiple inputs
+- Updates the text overlay in real-time
+
+### mouse_click_event(pos)
+
+Toggles the active state of the text entry field when clicked.
+
+```python
+def mouse_click_event(self, pos)
+```
+
+<ParamField path="pos" type="tuple" required>
+  The (x, y) position of the mouse click.
+</ParamField>
+
+Toggles the `clicked` attribute if the click is inside the field boundaries.
+
+### _point_is_inside(mpos)
+
+Internal method to check if a point is inside the text entry field's boundaries.
+
+```python
+def _point_is_inside(self, mpos) -> bool
+```
+
+<ParamField path="mpos" type="vec2d" required>
+  The position to check.
+</ParamField>
+
+**Returns:** `True` if the point is inside the field, `False` otherwise.
+
+## Attributes
+
+- `text` - The current text content of the field
+- `clicked` - Boolean indicating if the field is active/focused
+- `rect` - The pygame.Rect defining the field boundaries
+- `lastKey` - Tracks the last pressed key for delay logic
+- `delay` - Internal counter for key repeat delay
+
+## Usage Example
+
+From `game.py`:
+
+```python
+textTest = textEntry(screen, 
+    pos=vec2d(0, SCREEN_HEIGHT-50),
+    size=vec2d(SCREEN_WIDTH, 50))
+
+textEntries = [textTest]
+
+# Check if any text entry is active
+active = False 
+for entry in textEntries:
+    if entry.clicked:
+        active = True
+
+# In event loop - handle clicks
+for event in pygame.event.get():
+    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+        for entry in textEntries:
+            entry.mouse_click_event(event.pos)
+
+# In draw loop
+for obj in world:
+    obj.draw()
+```
+
+## Notes
+
+- Text is rendered using "Times New Roman" font at size 25
+- The field prevents text from extending beyond its width
+- Key repeat delay is implemented to prevent rapid duplicate input (though the delay timing may need adjustment)
+- Text wrapping is not currently implemented
+- When active, the field must have pygame window focus to receive keyboard input
+- The background is currently hardcoded to white in the `draw()` method regardless of the bgcolor parameter

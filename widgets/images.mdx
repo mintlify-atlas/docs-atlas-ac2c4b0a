@@ -1,0 +1,150 @@
+---
+title: Images Widget
+description: Display static or animated images like spinners
+---
+
+The `Images` widget allows for displaying unclickable images on the screen, with support for special effects like rotation animations.
+
+## Constructor
+
+```python
+Images(surface, image, pos=vec2d(0, 0), imgtype="")
+```
+
+### Parameters
+
+<ParamField path="surface" type="pygame.Surface" required>
+  The pygame surface to which the image will draw itself
+</ParamField>
+
+<ParamField path="image" type="str" required>
+  Path to the image file to load
+</ParamField>
+
+<ParamField path="pos" type="vec2d" default="vec2d(0, 0)">
+  The position of the image on the surface
+</ParamField>
+
+<ParamField path="imgtype" type="str" default="">
+  The type of image. Use `"Spinner"` for rotating animation
+</ParamField>
+
+## Image Types
+
+### Static Images
+
+Regular images that display without animation.
+
+```python game.py
+self.clockImg = Images(self.screen,
+    'images/clock.png',
+    pos=vec2d(430,0))
+```
+
+### Spinner Images
+
+Images that rotate continuously, making a full rotation every second (at 30 FPS).
+
+```python game.py
+self.hand = Images(self.screen,
+    'images/secondHand.png',
+    pos=vec2d(505,15),
+    imgtype='Spinner')
+```
+
+## Properties
+
+### rect
+
+The pygame.Rect representing the image's bounding box.
+
+### count
+
+Frame counter used for spinner animation timing.
+
+### imgwidth, imgheight
+
+Dimensions of the loaded image.
+
+## Methods
+
+### draw()
+
+Renders the image to the surface. For spinners, handles rotation logic.
+
+```python
+image.draw()
+```
+
+## Spinner Animation
+
+Spinners rotate in 90-degree increments at specific frame counts, making a full rotation every 30 frames (1 second at 30 FPS):
+
+```python widgets.py
+if self.imgtype == "Spinner":
+    x, y, ix, iy = self.rect
+    if self.count == 7:
+        self.img = pygame.transform.rotate(self.img, -90)
+        self.rect.y += self.imgheight
+    elif self.count == 15:
+        self.img = pygame.transform.rotate(self.img, -90)
+    elif self.count == 22:
+        self.img = pygame.transform.rotate(self.img, -90)
+        self.rect.x -= self.imgheight
+    elif self.count == 30:
+        self.img = pygame.transform.rotate(self.img, -90)
+        self.count = 0
+        self.rect.x += self.imgheight
+        self.rect.y -= self.imgheight
+    self.count += 1
+self.surface.blit(self.img, self.rect)
+```
+
+<Note>
+  The rotation implementation adjusts the rect position to compensate for how Pygame handles rotated images. The source code notes that "rotations didn't work well on diagonals" and this is mainly for testing purposes.
+</Note>
+
+## Usage in Game Loop
+
+Add images to your world list to have them drawn automatically:
+
+```python game.py
+self.world = [self.button, self.togglebtn, self.clockImg, self.hand, 
+              self.textTest, self.moveImg, self.floater, self.ball]
+
+def draw(self):
+    self.draw_background()
+    
+    if self.options['draw_grid']:
+        self.draw_grid()
+        
+    self.tboard.draw()
+    
+    for obj in self.world:
+        obj.draw()
+```
+
+## Implementation Details
+
+Images are loaded with alpha channel support for transparency:
+
+```python widgets.py
+self.img = pygame.image.load(image).convert_alpha()
+```
+
+The widget automatically calculates and stores the image dimensions:
+
+```python widgets.py
+self.imgwidth, self.imgheight = self.img.get_size()
+print "Image dimensions are: " + str(self.imgwidth) + ", " + str(self.imgheight)
+self.rect = Rect(self.pos.x, self.pos.y, self.imgwidth, self.imgheight)
+```
+
+<Tip>
+  Use static Images widgets for UI elements like logos, decorations, or non-interactive game elements. For images that move around the screen, use [movingImg](/widgets/moving-objects#movingimg) instead.
+</Tip>
+
+## Related Widgets
+
+- [Button](/widgets/button) - For clickable images with interaction
+- [Moving Objects](/widgets/moving-objects) - For animated moving images with collision detection

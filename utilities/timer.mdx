@@ -1,0 +1,319 @@
+---
+title: 'Timer'
+description: 'Periodic callback timer for game events'
+---
+
+## Overview
+
+The `Timer` class provides a simple way to execute callback functions periodically or after a delay. It's commonly used for animations, game events, and time-based mechanics.
+
+<Note>
+Timers require you to call `update()` each frame with the elapsed time. The callbacks are executed synchronously during these update calls.
+</Note>
+
+## Creating a Timer
+
+```python
+from utils import Timer
+
+# Create a repeating timer that fires every second
+def on_timer():
+    print("Timer fired!")
+
+timer = Timer(interval=1000, callback=on_timer)
+
+# Create a one-shot timer
+oneshot_timer = Timer(interval=2000, callback=on_timer, oneshot=True)
+```
+
+## Constructor Parameters
+
+<ParamField path="interval" type="int" required>
+  The timer interval in milliseconds. The callback will be triggered when this time has elapsed.
+</ParamField>
+
+<ParamField path="callback" type="callable" required>
+  A function to call when the interval expires. Should take no arguments.
+</ParamField>
+
+<ParamField path="oneshot" type="bool" default="False">
+  If `True`, the timer will only fire once and then become inactive. If `False`, the timer repeats indefinitely.
+</ParamField>
+
+## The update() Method
+
+Timers must be updated each frame to track elapsed time:
+
+```python
+# In your game loop
+def game_loop():
+    clock = pygame.time.Clock()
+    timer = Timer(1000, my_callback)
+    
+    while running:
+        time_passed = clock.tick(60)  # milliseconds since last frame
+        timer.update(time_passed)
+```
+
+<ParamField path="time_passed" type="int" required>
+  The amount of time in milliseconds that has passed since the last update call.
+</ParamField>
+
+## Timer Lifecycle
+
+### Active vs Inactive
+
+Timers have an `alive` attribute that indicates their status:
+
+```python
+timer = Timer(1000, callback, oneshot=True)
+
+print(timer.alive)  # True
+
+# After the one-shot timer fires
+timer.update(1500)
+print(timer.alive)  # False
+```
+
+<Note>
+Once a timer's `alive` attribute is `False`, calling `update()` has no effect. The timer will not fire again.
+</Note>
+
+## Repeating vs One-Shot Timers
+
+<Tabs>
+  <Tab title="Repeating Timer">
+    A repeating timer continues to fire at regular intervals.
+
+    ```python
+    # Fire every 500ms indefinitely
+    spawn_timer = Timer(500, spawn_enemy, oneshot=False)
+    
+    # In game loop
+    while running:
+        time_passed = clock.tick(60)
+        spawn_timer.update(time_passed)
+        # spawn_enemy() will be called every 500ms
+    ```
+
+    ### Use Cases
+    - Spawning enemies at regular intervals
+    - Updating UI elements periodically
+    - Animation frame advancement
+    - Periodic health regeneration
+  </Tab>
+
+  <Tab title="One-Shot Timer">
+    A one-shot timer fires once and then stops.
+
+    ```python
+    # Fire once after 3 seconds
+    def show_message():
+        print("3 seconds have passed!")
+    
+    delay_timer = Timer(3000, show_message, oneshot=True)
+    
+    # In game loop
+    while running:
+        time_passed = clock.tick(60)
+        delay_timer.update(time_passed)
+        # show_message() called once after 3000ms
+    ```
+
+    ### Use Cases
+    - Delayed actions
+    - Temporary power-ups with expiration
+    - Countdown timers
+    - Animation duration limits
+  </Tab>
+</Tabs>
+
+## Real Usage Examples
+
+### Animation Timing
+
+From `simpleanimation.py:32`:
+
+```python simpleanimation.py:32
+class SimpleAnimation(object):
+    def __init__(self, screen, pos, images, scroll_period, duration=-1):
+        # Timer to advance to next animation frame
+        self.scroll_timer = Timer(scroll_period, self._advance_img)
+        
+        # Timer to deactivate animation after duration
+        self.active_timer = Timer(duration, self._inactivate, True)
+    
+    def _advance_img(self):
+        # Move to next image in animation
+        self.img_ptr = (self.img_ptr + 1) % len(self.images)
+    
+    def _inactivate(self):
+        # Stop the animation
+        if self.duration >= 0:
+            self.active = False
+```
+
+This example shows two timers working together:
+- A **repeating timer** (`scroll_timer`) to cycle through animation frames
+- A **one-shot timer** (`active_timer`) to stop the animation after a set duration
+
+### Multiple Timers
+
+```python
+class Game:
+    def __init__(self):
+        # Different timers for different purposes
+        self.spawn_timer = Timer(2000, self.spawn_enemy)
+        self.powerup_timer = Timer(5000, self.spawn_powerup)
+        self.combo_reset = Timer(3000, self.reset_combo, oneshot=True)
+        
+        self.timers = [self.spawn_timer, self.powerup_timer]
+    
+    def update(self, time_passed):
+        # Update all timers
+        for timer in self.timers:
+            timer.update(time_passed)
+        
+        # Update one-shot timer if active
+        if self.combo_reset.alive:
+            self.combo_reset.update(time_passed)
+```
+
+## Callback Mechanism
+
+The callback function is called with no arguments:
+
+```python
+def simple_callback():
+    print("Timer fired!")
+
+# Correct
+timer = Timer(1000, simple_callback)
+
+# If you need to pass data, use a lambda or partial
+from functools import partial
+
+def callback_with_args(enemy_type, count):
+    spawn_enemies(enemy_type, count)
+
+# Using lambda
+timer1 = Timer(1000, lambda: callback_with_args("goblin", 3))
+
+# Using partial
+timer2 = Timer(1000, partial(callback_with_args, "orc", 5))
+```
+
+<Warning>
+Callbacks are executed synchronously during `update()`. Avoid long-running operations in callbacks as they will block the game loop.
+</Warning>
+
+## Common Patterns
+
+### Delayed Action
+
+```python
+def delayed_action(delay_ms, action):
+    """Execute an action after a delay"""
+    timer = Timer(delay_ms, action, oneshot=True)
+    return timer
+
+# Use it
+explosion_timer = delayed_action(500, lambda: create_explosion(pos))
+```
+
+### Cooldown Timer
+
+```python
+class Weapon:
+    def __init__(self):
+        self.can_fire = True
+        self.cooldown_timer = None
+    
+    def reset_cooldown(self):
+        self.can_fire = True
+    
+    def fire(self):
+        if not self.can_fire:
+            return
+        
+        # Fire the weapon
+        shoot_projectile()
+        
+        # Start cooldown
+        self.can_fire = False
+        self.cooldown_timer = Timer(1000, self.reset_cooldown, oneshot=True)
+    
+    def update(self, time_passed):
+        if self.cooldown_timer and self.cooldown_timer.alive:
+            self.cooldown_timer.update(time_passed)
+```
+
+### Periodic State Updates
+
+```python
+class HealthRegeneration:
+    def __init__(self, player):
+        self.player = player
+        # Regenerate 1 HP every 2 seconds
+        self.regen_timer = Timer(2000, self.regenerate)
+    
+    def regenerate(self):
+        if self.player.health < self.player.max_health:
+            self.player.health += 1
+    
+    def update(self, time_passed):
+        self.regen_timer.update(time_passed)
+```
+
+## Timer Precision
+
+<Note>
+Timer precision depends on your frame rate and how frequently you call `update()`. For a 60 FPS game, the maximum precision is about 16ms.
+</Note>
+
+```python
+# At 60 FPS (16.67ms per frame)
+timer = Timer(100, callback)  # Will fire after ~96-112ms
+
+# For more precise timing, use a higher frame rate
+clock.tick(120)  # 8.33ms per frame = better precision
+```
+
+## API Reference
+
+### Constructor
+
+```python
+Timer(interval, callback, oneshot=False)
+```
+
+### Attributes
+
+<ResponseField name="interval" type="int">
+  The timer interval in milliseconds
+</ResponseField>
+
+<ResponseField name="callback" type="callable">
+  The function to call when the timer fires
+</ResponseField>
+
+<ResponseField name="oneshot" type="bool">
+  Whether the timer fires once (`True`) or repeats (`False`)
+</ResponseField>
+
+<ResponseField name="alive" type="bool">
+  Whether the timer is active. One-shot timers set this to `False` after firing.
+</ResponseField>
+
+<ResponseField name="time" type="int">
+  Internal accumulator for tracking elapsed time. Resets to 0 when callback fires.
+</ResponseField>
+
+### Methods
+
+<ResponseField name="update(time_passed)" type="None">
+  Updates the timer with the elapsed time. Calls the callback if the interval has been reached.
+  
+  **Parameters:**
+  - `time_passed` (int): Milliseconds elapsed since last update
+</ResponseField>

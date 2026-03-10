@@ -1,0 +1,84 @@
+---
+title: 'Box'
+description: 'A rectangular box widget with optional border'
+---
+
+## Overview
+
+The `Box` class creates a rectangular widget with a background color and optional border. It provides a concept of an "internal rect" which represents the area inside the border.
+
+## Constructor
+
+```python
+Box(surface, rect, bgcolor, border_width=0, border_color=Color('black'))
+```
+
+### Parameters
+
+<ParamField path="surface" type="pygame.Surface" required>
+  The pygame surface to which the box will draw itself when its `draw()` method is called.
+</ParamField>
+
+<ParamField path="rect" type="pygame.Rect" required>
+  The outer rectangle defining the location and size of the box on the surface.
+</ParamField>
+
+<ParamField path="bgcolor" type="pygame.Color" required>
+  The background color of the box.
+</ParamField>
+
+<ParamField path="border_width" type="int" default="0">
+  Width of the border. If 0, no border is drawn. If > 0, the border is drawn inside the bounding rect of the widget (so take this into account when computing internal space of the box).
+</ParamField>
+
+<ParamField path="border_color" type="pygame.Color" default="Color('black')">
+  Color of the border.
+</ParamField>
+
+## Methods
+
+### draw()
+
+Draws the box to the surface, including the border (if specified) and background.
+
+```python
+def draw(self)
+```
+
+The border is drawn first, followed by the internal rectangle with the background color.
+
+### get_internal_rect()
+
+Returns the internal rect of the box - the area inside the border.
+
+```python
+def get_internal_rect(self) -> pygame.Rect
+```
+
+**Returns:** The internal `pygame.Rect` that excludes the border area.
+
+## Usage Example
+
+From `game.py` - creating a message board that uses Box internally:
+
+```python
+tboard_rect = pygame.Rect(120, 120, 125, 30)
+tboard_bgcolor = pygame.Color(50, 20, 0)
+
+tboard = MessageBoard(screen,
+    rect=tboard_rect,
+    bgcolor=tboard_bgcolor,
+    border_width=4,
+    border_color=pygame.Color('black'),
+    text=['This is a test.'],
+    padding=5,
+    font=('comic sans', 18),
+    font_color=pygame.Color('yellow'))
+```
+
+## Notes
+
+- All rectangles are `pygame.Rect` instances
+- All colors are `pygame.Color` instances
+- The border is drawn inside the outer rect, reducing the available internal space
+- The internal rect is calculated automatically during initialization

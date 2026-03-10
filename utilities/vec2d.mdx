@@ -1,0 +1,425 @@
+---
+title: 'vec2d'
+description: '2D vector class with comprehensive mathematical operations'
+---
+
+## Overview
+
+The `vec2d` class is a powerful 2D vector implementation that supports vector and scalar operations, along with high-level geometric functions. It's used throughout Serenity Valley for positioning, movement, and mathematical calculations.
+
+## Creating Vectors
+
+You can create a `vec2d` in two ways:
+
+<CodeGroup>
+```python Separate coordinates
+from vec2d import vec2d
+
+# Create with x and y coordinates
+position = vec2d(100, 200)
+velocity = vec2d(5.0, -3.0)
+```
+
+```python From tuple or list
+# Create from a tuple or list
+coords = (100, 200)
+position = vec2d(coords)
+
+# Also works with lists
+coords_list = [100, 200]
+position = vec2d(coords_list)
+```
+</CodeGroup>
+
+### Real Examples from Source
+
+```python widgets.py:318
+# Creating a moving rectangle with position, size, and speed vectors
+def __init__(self, surface, pos=vec2d(0,0), size=vec2d(20,20), 
+             color=(255,0,0), speed=vec2d(1,0), gravity=0):
+    self.pos = pos
+    self.size = size
+    self.speed = speed
+```
+
+```python game.py:104
+# Positioning UI elements
+self.floater = movingRect(self.screen,
+                    pos=vec2d(self.SCREEN_WIDTH/2, 0),
+                    speed=vec2d(0,5))
+```
+
+## Arithmetic Operations
+
+<Tabs>
+  <Tab title="Addition">
+    Vectors can be added to other vectors, tuples, lists, or scalars.
+
+    ```python
+    v1 = vec2d(10, 20)
+    v2 = vec2d(5, 3)
+    
+    # Vector addition
+    result = v1 + v2  # vec2d(15, 23)
+    
+    # Add tuple/list
+    result = v1 + [5, 3]  # vec2d(15, 23)
+    
+    # Add scalar (adds to both components)
+    result = v1 + 5  # vec2d(15, 25)
+    
+    # In-place addition
+    v1 += v2
+    ```
+
+    <Note>
+    Addition is commutative: `v + 5` and `5 + v` produce the same result.
+    </Note>
+  </Tab>
+
+  <Tab title="Subtraction">
+    Subtraction works similarly to addition.
+
+    ```python
+    v1 = vec2d(10, 20)
+    v2 = vec2d(5, 3)
+    
+    # Vector subtraction
+    result = v1 - v2  # vec2d(5, 17)
+    
+    # Subtract scalar
+    result = v1 - 2  # vec2d(8, 18)
+    
+    # In-place subtraction
+    v1 -= v2
+    ```
+  </Tab>
+
+  <Tab title="Multiplication">
+    Multiply vectors component-wise or by scalars.
+
+    ```python
+    v = vec2d(10, 20)
+    
+    # Scale by scalar
+    result = v * 2  # vec2d(20, 40)
+    
+    # Component-wise multiplication
+    v2 = vec2d(2, 3)
+    result = v * v2  # vec2d(20, 60)
+    
+    # In-place multiplication
+    v *= 0.5
+    ```
+
+    <Note>
+    Multiplication is commutative with scalars: `v * 2` and `2 * v` are equivalent.
+    </Note>
+  </Tab>
+
+  <Tab title="Division">
+    Division supports standard, floor, and true division.
+
+    ```python
+    v = vec2d(10, 20)
+    
+    # Division by scalar
+    result = v / 2  # vec2d(5, 10)
+    
+    # Component-wise division
+    result = v / [2, 4]  # vec2d(5, 5)
+    
+    # Floor division
+    result = v // 3  # vec2d(3, 6)
+    
+    # In-place division
+    v /= 2
+    ```
+  </Tab>
+</Tabs>
+
+## Vector Operations
+
+<Tabs>
+  <Tab title="Length & Magnitude">
+    Calculate and manipulate vector length.
+
+    ```python
+    v = vec2d(3, 4)
+    
+    # Get length (magnitude)
+    length = v.get_length()  # Returns 5.0
+    length = v.length  # Property access
+    
+    # Get squared length (faster, no sqrt)
+    length_sqrd = v.get_length_sqrd()  # Returns 25
+    
+    # Set length (scales the vector)
+    v.length = 10  # Now vec2d(6, 8)
+    
+    # Normalize and get original length
+    original_length = v.normalize_return_length()
+    # v is now unit vector, returns original length
+    ```
+
+    <Note>
+    Use `get_length_sqrd()` when comparing distances to avoid expensive square root calculations.
+    </Note>
+  </Tab>
+
+  <Tab title="Angles & Rotation">
+    Work with vector angles and rotation.
+
+    ```python
+    v = vec2d(1, 0)
+    
+    # Get angle in degrees
+    angle = v.get_angle()  # Returns 0
+    angle = v.angle  # Property access
+    
+    # Set angle (rotates to specified angle)
+    v.angle = 90  # Now points upward
+    
+    # Rotate by angle (in-place)
+    v.rotate(45)  # Rotates 45 degrees
+    
+    # Get rotated copy (non-destructive)
+    v2 = v.rotated(90)  # v unchanged, v2 is rotated
+    
+    # Get angle between two vectors
+    v1 = vec2d(1, 0)
+    v2 = vec2d(0, 1)
+    angle = v1.get_angle_between(v2)  # Returns 90
+    ```
+  </Tab>
+
+  <Tab title="Normalization">
+    Create unit vectors (length = 1).
+
+    ```python
+    v = vec2d(3, 4)  # length = 5
+    
+    # Get normalized copy
+    unit = v.normalized()  # vec2d(0.6, 0.8)
+    # Original v is unchanged
+    
+    # Normalize and return original length
+    original = v.normalize_return_length()
+    # v is now normalized, returns 5.0
+    ```
+
+    <Note>
+    Normalized vectors are useful for direction calculations while preserving the original magnitude separately.
+    </Note>
+  </Tab>
+
+  <Tab title="Dot & Cross Product">
+    Perform vector multiplication operations.
+
+    ```python
+    v1 = vec2d(2, 3)
+    v2 = vec2d(4, 5)
+    
+    # Dot product (returns scalar)
+    result = v1.dot(v2)  # Returns 23.0
+    # Formula: v1.x * v2.x + v1.y * v2.y
+    
+    # Cross product (returns scalar for 2D)
+    result = v1.cross(v2)  # Returns -2
+    # Formula: v1.x * v2.y - v1.y * v2.x
+    ```
+
+    ### Use Cases
+
+    <ParamField body="Dot Product" type="float">
+      - Check if vectors are perpendicular (dot = 0)
+      - Calculate angle between vectors
+      - Project one vector onto another
+    </ParamField>
+
+    <ParamField body="Cross Product" type="float">
+      - Determine rotation direction (positive = counter-clockwise)
+      - Check if point is left or right of a line
+    </ParamField>
+  </Tab>
+
+  <Tab title="Advanced Operations">
+    High-level geometric operations.
+
+    ```python
+    v = vec2d(10, 5)
+    
+    # Perpendicular vector (90° rotation)
+    perp = v.perpendicular()  # vec2d(-5, 10)
+    
+    # Perpendicular normal (unit perpendicular)
+    perp_norm = v.perpendicular_normal()
+    
+    # Distance between points
+    v1 = vec2d(0, 0)
+    v2 = vec2d(3, 4)
+    dist = v1.get_distance(v2)  # Returns 5.0
+    
+    # Squared distance (faster)
+    dist_sqrd = v1.get_dist_sqrd(v2)  # Returns 25
+    
+    # Project v onto other
+    v = vec2d(10, 5)
+    other = vec2d(1, 0)
+    proj = v.projection(other)  # vec2d(10, 0)
+    
+    # Interpolate between vectors
+    v1 = vec2d(0, 0)
+    v2 = vec2d(10, 10)
+    mid = v1.interpolate_to(v2, 0.5)  # vec2d(5, 5)
+    ```
+  </Tab>
+</Tabs>
+
+## Comparison & Indexing
+
+### Comparison
+
+```python
+v1 = vec2d(3, 4)
+v2 = vec2d(3, 4)
+v3 = vec2d(5, 6)
+
+# Equality
+v1 == v2  # True
+v1 == (3, 4)  # True (works with tuples)
+v1 == [3, 4]  # True (works with lists)
+
+# Inequality
+v1 != v3  # True
+```
+
+### Indexing
+
+Access components by index:
+
+```python
+v = vec2d(10, 20)
+
+# Access by index
+x = v[0]  # 10
+y = v[1]  # 20
+
+# Modify by index
+v[0] = 5
+v[1] = 15
+
+# Get length
+len(v)  # Returns 2
+```
+
+## Unary Operations
+
+```python
+v = vec2d(3, -4)
+
+# Negation
+neg = -v  # vec2d(-3, 4)
+
+# Absolute value
+abs_v = abs(v)  # vec2d(3, 4)
+
+# Inversion
+inv = ~v  # vec2d(-3, 4)
+```
+
+## Common Patterns
+
+### Velocity and Movement
+
+```python widgets.py:334
+# Update position based on velocity
+self.pos.x += self.speed.x
+self.pos.y += self.speed.y
+
+# Bounce off walls (reverse velocity)
+if self.pos.x + self.size.x > self.surfaceSize.x or self.pos.x < 0:
+    self.speed.x *= -1
+if self.pos.y + self.size.y > self.surfaceSize.y or self.pos.y < 0:
+    self.speed.y *= -1
+```
+
+### Direction Calculation
+
+```python
+# Get direction from point A to point B
+point_a = vec2d(100, 100)
+point_b = vec2d(200, 150)
+
+direction = (point_b - point_a).normalized()
+speed = 5
+velocity = direction * speed
+```
+
+### Distance Checks
+
+```python
+# Check if two objects are close
+player_pos = vec2d(100, 100)
+enemy_pos = vec2d(150, 150)
+
+# Use squared distance to avoid sqrt
+if player_pos.get_dist_sqrd(enemy_pos) < 50**2:
+    print("Enemy is within range!")
+```
+
+## API Reference
+
+<ParamField path="x" type="float">
+  The x-component of the vector
+</ParamField>
+
+<ParamField path="y" type="float">
+  The y-component of the vector
+</ParamField>
+
+<ParamField path="length" type="float">
+  Property to get or set the magnitude of the vector
+</ParamField>
+
+<ParamField path="angle" type="float">
+  Property to get or set the angle of the vector in degrees
+</ParamField>
+
+### Methods
+
+<ResponseField name="get_length()" type="float">
+  Returns the magnitude of the vector
+</ResponseField>
+
+<ResponseField name="get_length_sqrd()" type="float">
+  Returns the squared magnitude (faster than get_length)
+</ResponseField>
+
+<ResponseField name="rotate(angle_degrees)" type="None">
+  Rotates the vector in-place by the specified angle
+</ResponseField>
+
+<ResponseField name="rotated(angle_degrees)" type="vec2d">
+  Returns a rotated copy of the vector
+</ResponseField>
+
+<ResponseField name="normalized()" type="vec2d">
+  Returns a unit vector in the same direction
+</ResponseField>
+
+<ResponseField name="dot(other)" type="float">
+  Returns the dot product with another vector
+</ResponseField>
+
+<ResponseField name="cross(other)" type="float">
+  Returns the 2D cross product (scalar)
+</ResponseField>
+
+<ResponseField name="get_distance(other)" type="float">
+  Returns the distance to another point
+</ResponseField>
+
+<ResponseField name="get_angle_between(other)" type="float">
+  Returns the angle in degrees between this vector and another
+</ResponseField>

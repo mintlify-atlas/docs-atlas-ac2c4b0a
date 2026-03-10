@@ -1,0 +1,155 @@
+---
+title: 'Button'
+description: 'Interactive button widget with multiple types'
+---
+
+## Overview
+
+The `Button` class creates a rectangular, clickable button widget. It supports multiple button types including "Close", "Toggle", and "Action" buttons, each with different behaviors.
+
+## Constructor
+
+```python
+Button(surface, pos=vec2d(0, 0), btntype="", imgnames=[], text="", 
+       textcolor=(0,0,0), textimg=0, padding=0, attached="")
+```
+
+### Parameters
+
+<ParamField path="surface" type="pygame.Surface" required>
+  The pygame surface to which the button will draw itself.
+</ParamField>
+
+<ParamField path="pos" type="vec2d" default="vec2d(0, 0)">
+  The position of the button on the surface.
+</ParamField>
+
+<ParamField path="btntype" type="str" default="">
+  The type of button. Options: "Close", "Toggle", "Action".
+</ParamField>
+
+<ParamField path="imgnames" type="list[str]" default="[]">
+  List of image file paths for the button states. For Toggle buttons, provide two images.
+</ParamField>
+
+<ParamField path="text" type="str" default="">
+  Text label to display on the button.
+</ParamField>
+
+<ParamField path="textcolor" type="tuple" default="(0,0,0)">
+  RGB color tuple for the text label.
+</ParamField>
+
+<ParamField path="textimg" type="int" default="0">
+  Index of the image to show the text overlay on (for Toggle buttons).
+</ParamField>
+
+<ParamField path="padding" type="int" default="0">
+  Padding around the button content.
+</ParamField>
+
+<ParamField path="attached" type="any" default="">
+  Reference to an attached widget (e.g., a MessageBoard that the button controls).
+</ParamField>
+
+## State Constants
+
+```python
+Button.UNCLICKED = 0
+Button.CLICKED = 1
+```
+
+## Methods
+
+### draw()
+
+Draws the button to the surface with the appropriate image and text based on button type and state.
+
+```python
+def draw(self)
+```
+
+Behavior:
+- **Close buttons**: Always draw the first image
+- **Toggle buttons**: Draw the image corresponding to the current toggle state, and overlay text if `toggle == textimg`
+
+### mouse_click_event(pos)
+
+Handles mouse click events for the button.
+
+```python
+def mouse_click_event(self, pos)
+```
+
+<ParamField path="pos" type="tuple" required>
+  The (x, y) position of the mouse click.
+</ParamField>
+
+Behavior by button type:
+- **Close**: Sets state to `CLICKED` if click is inside the button
+- **Toggle**: Toggles state and switches to the alternate image
+- **Action**: Triggers an action (starts an animation in the implementation)
+
+### _point_is_inside(mpos)
+
+Internal method to check if a point is inside the button's boundaries.
+
+```python
+def _point_is_inside(self, mpos) -> bool
+```
+
+<ParamField path="mpos" type="vec2d" required>
+  The position to check.
+</ParamField>
+
+**Returns:** `True` if the point is inside the button, `False` otherwise.
+
+## Attributes
+
+- `state` - Current button state (UNCLICKED or CLICKED)
+- `toggle` - Current toggle state (0 or 1) for Toggle buttons
+- `rect` - The pygame.Rect defining the button's boundaries
+
+## Usage Examples
+
+### Close Button
+
+From `game.py`:
+
+```python
+button_bgimgs = ['images/x.png']
+
+button = Button(screen,
+    pos=vec2d(125, 105),
+    btntype='Close',
+    imgnames=button_bgimgs,
+    attached=tboard)
+```
+
+### Toggle Button
+
+From `game.py`:
+
+```python
+togglebtn_bgimgs = ['images/toggle1.png', 'images/toggle2.png']
+
+togglebtn = Button(screen,
+    pos=vec2d(250, 250),
+    btntype='Toggle',
+    imgnames=togglebtn_bgimgs,
+    attached="",
+    text="Toggle",
+    textcolor=(255,255,255))
+
+# In event loop
+for button in buttons:
+    button.mouse_click_event(event.pos)
+```
+
+## Notes
+
+- Button images are loaded with `convert_alpha()` for transparency support
+- Text is rendered using "Times New Roman" font at size 25
+- Text is automatically centered on the button
+- Toggle buttons alternate between two images when clicked
+- The button automatically recalculates dimensions when toggling

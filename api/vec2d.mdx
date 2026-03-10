@@ -1,0 +1,376 @@
+---
+title: "vec2d"
+description: "2D vector class with comprehensive operator support and vector mathematics"
+---
+
+## Overview
+
+The `vec2d` class is a 2D vector implementation that supports both vector and scalar operations, along with a comprehensive set of high-level vector mathematics functions.
+
+## Constructor
+
+### \_\_init\_\_()
+
+Creates a new 2D vector.
+
+```python
+def __init__(self, x_or_pair, y=None):
+```
+
+<ParamField path="x_or_pair" type="float or tuple">
+  Either the x-coordinate value, or a tuple/list containing (x, y) coordinates
+</ParamField>
+
+<ParamField path="y" type="float" default="None">
+  The y-coordinate value. If None, x_or_pair must be a tuple/list
+</ParamField>
+
+**Usage Examples:**
+```python
+v1 = vec2d(10, 20)        # Create from x, y
+v2 = vec2d((10, 20))      # Create from tuple
+v3 = vec2d([10, 20])      # Create from list
+```
+
+## Arithmetic Operators
+
+### Addition
+
+Supports addition with other vectors, tuples, or scalars.
+
+```python
+v1 + v2          # Vector addition
+v1 + (5, 10)     # Add tuple
+v1 + 5           # Add scalar to both components
+v1 += v2         # In-place addition
+```
+
+### Subtraction
+
+Supports subtraction with other vectors, tuples, or scalars.
+
+```python
+v1 - v2          # Vector subtraction
+v1 - (5, 10)     # Subtract tuple
+v1 - 5           # Subtract scalar from both components
+v1 -= v2         # In-place subtraction
+```
+
+### Multiplication
+
+Supports multiplication with other vectors, tuples, or scalars.
+
+```python
+v1 * v2          # Component-wise multiplication
+v1 * (2, 3)      # Multiply by tuple
+v1 * 5           # Scale by scalar
+v1 *= 2          # In-place multiplication
+```
+
+### Division
+
+Supports division operations (regular, floor, and true division).
+
+```python
+v1 / v2          # Component-wise division
+v1 / 2           # Divide by scalar
+v1 // 2          # Floor division
+v1 /= 2          # In-place division
+```
+
+### Other Arithmetic
+
+```python
+v1 ** 2          # Exponentiation
+v1 % 5           # Modulo
+-v1              # Negation
++v1              # Positive
+abs(v1)          # Absolute value
+```
+
+## Comparison Operators
+
+### Equality
+
+Compares vectors for equality.
+
+```python
+v1 == v2         # True if both x and y are equal
+v1 != v2         # True if x or y differ
+v1 == (5, 10)    # Can compare with tuples
+```
+
+## Indexing and Length
+
+Vectors support indexing and length operations.
+
+```python
+v = vec2d(10, 20)
+v[0]             # Returns 10 (x component)
+v[1]             # Returns 20 (y component)
+v[0] = 5         # Set x component
+len(v)           # Returns 2
+```
+
+## Vector Properties
+
+### length
+
+Gets or sets the magnitude (length) of the vector.
+
+```python
+v = vec2d(3, 4)
+print(v.length)  # Returns 5.0
+v.length = 10    # Scales vector to length 10
+```
+
+### angle
+
+Gets or sets the angle of the vector in degrees.
+
+```python
+v = vec2d(1, 0)
+print(v.angle)   # Returns 0.0
+v.angle = 90     # Rotates to point upward
+```
+
+## Length and Distance Methods
+
+### get_length()
+
+Returns the magnitude (length) of the vector.
+
+```python
+def get_length(self):
+```
+
+**Returns:** The length of the vector as a float
+
+### get_length_sqrd()
+
+Returns the squared length of the vector (faster than get_length).
+
+```python
+def get_length_sqrd(self):
+```
+
+**Returns:** The squared length as a float
+
+### get_distance()
+
+Calculates the distance to another vector.
+
+```python
+def get_distance(self, other):
+```
+
+<ParamField path="other" type="vec2d or tuple">
+  The other vector to measure distance to
+</ParamField>
+
+**Returns:** The distance between the vectors as a float
+
+### get_dist_sqrd()
+
+Calculates the squared distance to another vector (faster than get_distance).
+
+```python
+def get_dist_sqrd(self, other):
+```
+
+<ParamField path="other" type="vec2d or tuple">
+  The other vector to measure distance to
+</ParamField>
+
+**Returns:** The squared distance as a float
+
+## Rotation Methods
+
+### rotate()
+
+Rotates the vector in-place by the specified angle.
+
+```python
+def rotate(self, angle_degrees):
+```
+
+<ParamField path="angle_degrees" type="float">
+  The angle to rotate by, in degrees
+</ParamField>
+
+### rotated()
+
+Returns a new vector rotated by the specified angle.
+
+```python
+def rotated(self, angle_degrees):
+```
+
+<ParamField path="angle_degrees" type="float">
+  The angle to rotate by, in degrees
+</ParamField>
+
+**Returns:** A new `vec2d` rotated by the specified angle
+
+### get_angle()
+
+Returns the angle of the vector in degrees.
+
+```python
+def get_angle(self):
+```
+
+**Returns:** The angle in degrees (0-360)
+
+### get_angle_between()
+
+Calculates the angle between this vector and another.
+
+```python
+def get_angle_between(self, other):
+```
+
+<ParamField path="other" type="vec2d or tuple">
+  The other vector to measure angle to
+</ParamField>
+
+**Returns:** The angle between the vectors in degrees
+
+## Normalization Methods
+
+### normalized()
+
+Returns a normalized (unit) version of the vector.
+
+```python
+def normalized(self):
+```
+
+**Returns:** A new `vec2d` with length 1, or (0, 0) if the original length is 0
+
+### normalize_return_length()
+
+Normalizes the vector in-place and returns the original length.
+
+```python
+def normalize_return_length(self):
+```
+
+**Returns:** The original length of the vector before normalization
+
+## Perpendicular Methods
+
+### perpendicular()
+
+Returns a vector perpendicular to this one.
+
+```python
+def perpendicular(self):
+```
+
+**Returns:** A new `vec2d` perpendicular to this vector (rotated 90 degrees)
+
+### perpendicular_normal()
+
+Returns a normalized perpendicular vector.
+
+```python
+def perpendicular_normal(self):
+```
+
+**Returns:** A new normalized `vec2d` perpendicular to this vector
+
+## Vector Mathematics
+
+### dot()
+
+Calculates the dot product with another vector.
+
+```python
+def dot(self, other):
+```
+
+<ParamField path="other" type="vec2d or tuple">
+  The other vector for the dot product
+</ParamField>
+
+**Returns:** The dot product as a float
+
+### cross()
+
+Calculates the cross product with another vector (returns scalar in 2D).
+
+```python
+def cross(self, other):
+```
+
+<ParamField path="other" type="vec2d or tuple">
+  The other vector for the cross product
+</ParamField>
+
+**Returns:** The scalar cross product
+
+### projection()
+
+Projects this vector onto another vector.
+
+```python
+def projection(self, other):
+```
+
+<ParamField path="other" type="vec2d or tuple">
+  The vector to project onto
+</ParamField>
+
+**Returns:** A new `vec2d` representing the projection
+
+## Interpolation and Conversion
+
+### interpolate_to()
+
+Interpolates between this vector and another.
+
+```python
+def interpolate_to(self, other, range):
+```
+
+<ParamField path="other" type="vec2d or tuple">
+  The target vector to interpolate towards
+</ParamField>
+
+<ParamField path="range" type="float">
+  Interpolation factor (0.0 = this vector, 1.0 = other vector)
+</ParamField>
+
+**Returns:** A new `vec2d` representing the interpolated position
+
+### convert_to_basis()
+
+Converts the vector to a different coordinate basis.
+
+```python
+def convert_to_basis(self, x_vector, y_vector):
+```
+
+<ParamField path="x_vector" type="vec2d">
+  The basis vector for the x-axis
+</ParamField>
+
+<ParamField path="y_vector" type="vec2d">
+  The basis vector for the y-axis
+</ParamField>
+
+**Returns:** A new `vec2d` in the specified basis
+
+## Bitwise Operators
+
+The vec2d class also supports bitwise operations:
+
+```python
+v1 << 2          # Left shift
+v1 >> 2          # Right shift
+v1 & v2          # Bitwise AND
+v1 | v2          # Bitwise OR
+v1 ^ v2          # Bitwise XOR
+~v1              # Invert (returns -x, -y)
+```

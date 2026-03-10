@@ -1,0 +1,112 @@
+---
+title: 'MessageBoard'
+description: 'A rectangular board for displaying text messages'
+---
+
+## Overview
+
+The `MessageBoard` class creates a rectangular widget for displaying text messages on the screen. It uses a `Box` widget with text drawn inside. The text is a list of lines that can be retrieved and changed with the `.text` attribute.
+
+## Constructor
+
+```python
+MessageBoard(surface, rect, text, padding, font=('arial', 20), 
+             font_color=Color('white'), bgcolor=Color('gray25'), 
+             border_width=0, border_color=Color('black'))
+```
+
+### Parameters
+
+<ParamField path="surface" type="pygame.Surface" required>
+  The pygame surface to which the message board will draw itself.
+</ParamField>
+
+<ParamField path="rect" type="pygame.Rect" required>
+  The rectangle defining the location and size of the message board on the surface.
+</ParamField>
+
+<ParamField path="text" type="list[str]" required>
+  The initial text of the message board as a list of strings (one per line).
+</ParamField>
+
+<ParamField path="padding" type="int" required>
+  Padding in pixels around the text inside the message board.
+</ParamField>
+
+<ParamField path="font" type="tuple" default="('arial', 20)">
+  The font as a (name, size) tuple.
+</ParamField>
+
+<ParamField path="font_color" type="pygame.Color" default="Color('white')">
+  The color of the text.
+</ParamField>
+
+<ParamField path="bgcolor" type="pygame.Color" default="Color('gray25')">
+  The background color of the message board.
+</ParamField>
+
+<ParamField path="border_width" type="int" default="0">
+  Width of the border. Same meaning as in the Box widget.
+</ParamField>
+
+<ParamField path="border_color" type="pygame.Color" default="Color('black')">
+  Color of the border. Same meaning as in the Box widget.
+</ParamField>
+
+## Methods
+
+### draw()
+
+Draws the message board to the surface, including the surrounding box and all text lines.
+
+```python
+def draw(self)
+```
+
+The method:
+1. Draws the surrounding box
+2. Renders all lines of text one below the other
+3. Tests if text fits within the MessageBoard plus padding
+4. Raises `LayoutError` if any line cannot fit
+
+**Raises:** `LayoutError` if a line is too large to fit in the widget with the specified padding.
+
+## Attributes
+
+- `text` - The list of text lines to display (can be modified dynamically)
+- `box` - The underlying `Box` widget used for drawing
+
+## Usage Example
+
+From `game.py`:
+
+```python
+tboard_text = ['This is a test.']
+tboard_x = 120
+tboard_y = 120
+tboard_width = 125
+tboard_height = 30
+tboard_rect = pygame.Rect(tboard_x, tboard_y, tboard_width, tboard_height)
+tboard_bgcolor = pygame.Color(50, 20, 0)
+
+tboard = MessageBoard(screen,
+    rect=tboard_rect,
+    bgcolor=tboard_bgcolor,
+    border_width=4,
+    border_color=pygame.Color('black'),
+    text=tboard_text,
+    padding=5,
+    font=('comic sans', 18),
+    font_color=pygame.Color('yellow'))
+
+# In the game loop
+tboard.draw()
+```
+
+## Notes
+
+- Text is rendered using `pygame.font.SysFont`
+- Each string in the `text` list is rendered on a separate line
+- Lines are stacked vertically from top to bottom
+- The widget validates that text fits within the available space including padding
+- You can dynamically update text by modifying the `text` attribute

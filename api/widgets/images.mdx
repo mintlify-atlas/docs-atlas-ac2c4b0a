@@ -1,0 +1,97 @@
+---
+title: 'Images'
+description: 'Display static or animated images'
+---
+
+## Overview
+
+The `Images` class displays unclickable images on the screen. It supports special image types like "Spinner" which creates a rotating animation effect.
+
+## Constructor
+
+```python
+Images(surface, image, pos=vec2d(0, 0), imgtype="")
+```
+
+### Parameters
+
+<ParamField path="surface" type="pygame.Surface" required>
+  The pygame surface to which the image will be drawn.
+</ParamField>
+
+<ParamField path="image" type="str" required>
+  Path to the image file to load.
+</ParamField>
+
+<ParamField path="pos" type="vec2d" default="vec2d(0, 0)">
+  The position where the image will be drawn on the surface.
+</ParamField>
+
+<ParamField path="imgtype" type="str" default="">
+  Special image behavior type. Use "Spinner" for rotating animation.
+</ParamField>
+
+## Methods
+
+### draw()
+
+Draws the image to the surface. For Spinner type images, applies rotation animation.
+
+```python
+def draw(self)
+```
+
+Behavior:
+- **Standard images**: Simply blit the image to the surface
+- **Spinner images**: Rotate the image 90 degrees at specific count intervals, completing a full rotation every ~30 frames (1 second at 30 FPS)
+
+Rotation sequence for Spinners:
+- Count 7: Rotate -90°, adjust Y position
+- Count 15: Rotate -90°
+- Count 22: Rotate -90°, adjust X position
+- Count 30: Rotate -90°, reset count and positions
+
+## Attributes
+
+- `img` - The loaded pygame image surface
+- `imgtype` - The type of image behavior
+- `pos` - Current position of the image
+- `rect` - The pygame.Rect defining the image boundaries
+- `count` - Internal counter for animation timing (Spinner type)
+
+## Usage Examples
+
+### Static Image
+
+From `game.py`:
+
+```python
+clockImg = Images(screen,
+    'images/clock.png',
+    pos=vec2d(430, 0))
+
+# In game loop
+clockImg.draw()
+```
+
+### Spinner Animation
+
+From `game.py`:
+
+```python
+hand = Images(screen,
+    'images/secondHand.png',
+    pos=vec2d(505, 15),
+    imgtype='Spinner')
+
+# In game loop (called every frame at 30 FPS)
+hand.draw()  # Automatically rotates over time
+```
+
+## Notes
+
+- Images are loaded with `convert_alpha()` for transparency support
+- The widget prints image dimensions to console during initialization
+- Spinner rotation uses `pygame.transform.rotate()` which may have quality issues on diagonals
+- Spinners complete a full 360° rotation approximately every second (at 30 FPS)
+- Position adjustments in Spinner mode compensate for rotation artifacts

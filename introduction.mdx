@@ -1,0 +1,98 @@
+---
+title: "Introduction"
+description: "A simple pygame-based demonstration game showcasing custom UI widgets, animations, and 2D vector mathematics"
+---
+
+## Welcome to Serenity Valley Game
+
+Serenity Valley Game is a demonstration project built with pygame that showcases a collection of custom UI widgets, interactive elements, and utility classes for building 2D games in Python.
+
+<CardGroup cols={2}>
+  <Card title="Get Started" icon="rocket" href="/quickstart">
+    Set up and run the game in minutes
+  </Card>
+  <Card title="Explore Widgets" icon="paintbrush" href="/widgets/overview">
+    Discover interactive UI components
+  </Card>
+  <Card title="Learn Utilities" icon="wrench" href="/utilities/vec2d">
+    Master 2D vector math and timers
+  </Card>
+  <Card title="API Reference" icon="code" href="/api/game">
+    Complete API documentation
+  </Card>
+</CardGroup>
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Custom UI Widgets" icon="window">
+    Pre-built components including Box, MessageBoard, Button, Images, and text entry fields
+  </Card>
+  <Card title="2D Vector Mathematics" icon="calculator">
+    Comprehensive vec2d class with operations, rotations, and geometric utilities
+  </Card>
+  <Card title="Interactive Elements" icon="hand-pointer">
+    Toggle buttons, text entry, and mouse click event handling
+  </Card>
+  <Card title="Animation System" icon="film">
+    SimpleAnimation class for sprite-based animations with timers
+  </Card>
+  <Card title="Moving Objects" icon="person-running">
+    Animated rectangles and images with collision detection
+  </Card>
+  <Card title="Grid-Based Layout" icon="grid">
+    Coordinate conversion system for grid-based game fields
+  </Card>
+</CardGroup>
+
+## What You'll Learn
+
+This project demonstrates fundamental pygame concepts:
+
+- Setting up a game loop with frame limiting
+- Creating reusable UI widget classes
+- Handling user input (keyboard and mouse)
+- Managing game state with pause/resume functionality
+- Drawing and updating sprites and shapes
+- Using timer utilities for periodic callbacks
+
+<Note>
+This project is based on examples from [Eli Thegreenplace's pygame tutorial series](http://eli.thegreenplace.net/2009/02/13/writing-a-game-in-python-with-pygame-part-iv/).
+</Note>
+
+## Quick Example
+
+Here's a simple example of creating a button widget:
+
+```python game.py
+from widgets import Button
+from vec2d import vec2d
+
+# Create a toggle button
+toggle_button = Button(
+    screen,
+    pos=vec2d(250, 250),
+    btntype='Toggle',
+    imgnames=['images/toggle1.png', 'images/toggle2.png'],
+    text="Toggle",
+    textcolor=(255, 255, 255)
+)
+
+# Draw the button in your game loop
+toggle_button.draw()
+
+# Handle mouse clicks
+if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+    toggle_button.mouse_click_event(event.pos)
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Quickstart Guide" icon="play" href="/quickstart">
+    Install pygame and run the game
+  </Card>
+  <Card title="Architecture Overview" icon="sitemap" href="/concepts/architecture">
+    Understand the project structure
+  </Card>
+</CardGroup>

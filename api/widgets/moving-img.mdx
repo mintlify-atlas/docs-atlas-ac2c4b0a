@@ -1,0 +1,92 @@
+---
+title: 'movingImg'
+description: 'Animated image that bounces around the screen'
+---
+
+## Overview
+
+The `movingImg` class creates an image that moves around the screen and bounces off the edges. Similar to `movingRect` but uses an image instead of a solid color rectangle.
+
+## Constructor
+
+```python
+movingImg(surface, image, pos=vec2d(0,0), speed=vec2d(1,0), gravity=1)
+```
+
+### Parameters
+
+<ParamField path="surface" type="pygame.Surface" required>
+  The pygame surface to which the image will be drawn.
+</ParamField>
+
+<ParamField path="image" type="str" required>
+  Path to the image file to load and animate.
+</ParamField>
+
+<ParamField path="pos" type="vec2d" default="vec2d(0,0)">
+  The initial position of the image.
+</ParamField>
+
+<ParamField path="speed" type="vec2d" default="vec2d(1,0)">
+  The velocity vector (x, y) indicating movement speed and direction per frame.
+</ParamField>
+
+<ParamField path="gravity" type="int" default="1">
+  Gravity value (parameter defined but not currently implemented in draw method).
+</ParamField>
+
+## Methods
+
+### draw()
+
+Updates the image's position, handles boundary collisions, and draws the image.
+
+```python
+def draw(self)
+```
+
+Behavior:
+1. Checks if image hits horizontal boundaries (left/right edges)
+   - Reverses X velocity if collision detected
+2. Checks if image hits vertical boundaries (top/bottom edges)
+   - Reverses Y velocity if collision detected
+3. Updates position by adding speed vector
+4. Updates the rect object
+5. Blits the image to the surface
+
+## Attributes
+
+- `image` - The loaded pygame image surface
+- `pos` - Current position as vec2d
+- `speed` - Velocity vector as vec2d
+- `size` - Image dimensions as vec2d
+- `rect` - The pygame.Rect used for positioning and drawing
+- `surfaceSize` - Size of the surface for boundary detection
+
+## Usage Example
+
+From `game.py`:
+
+```python
+moveImg = movingImg(screen,
+    "images/toggle1.png",
+    pos=vec2d(0, SCREEN_HEIGHT*3/4),
+    speed=vec2d(5, 0))
+
+# Add to world objects list
+world = [button, togglebtn, clockImg, hand, textTest, moveImg, floater, ball]
+
+# In game loop
+for obj in world:
+    obj.draw()  # Automatically moves and bounces
+```
+
+## Notes
+
+- The image automatically bounces when it hits any screen edge
+- Velocity reversal creates a "bounce" effect
+- The `gravity` parameter is defined but not currently implemented in the movement logic
+- Image size is automatically determined from the loaded image
+- Position and velocity are updated every frame when `draw()` is called
+- Uses vec2d for 2D vector operations
+- Images are loaded without `convert_alpha()` unlike other image widgets

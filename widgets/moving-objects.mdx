@@ -1,0 +1,217 @@
+---
+title: Moving Objects
+description: Animated rectangles, images, and circles with automatic collision detection and boundary handling
+---
+
+The moving objects widgets provide animated elements that move across the screen with automatic boundary collision detection.
+
+## movingRect
+
+Creates a rectangular object that moves around the screen and bounces off edges.
+
+### Constructor
+
+```python
+movingRect(surface, pos=vec2d(0,0), size=vec2d(20,20), 
+           color=(255,0,0), speed=vec2d(1,0), gravity=0)
+```
+
+### Parameters
+
+<ParamField path="surface" type="pygame.Surface" required>
+  The pygame surface to which the rect will draw itself
+</ParamField>
+
+<ParamField path="pos" type="vec2d" default="vec2d(0,0)">
+  The initial position of the rectangle
+</ParamField>
+
+<ParamField path="size" type="vec2d" default="vec2d(20,20)">
+  The width and height of the rectangle
+</ParamField>
+
+<ParamField path="color" type="tuple" default="(255,0,0)">
+  RGB color tuple for the rectangle
+</ParamField>
+
+<ParamField path="speed" type="vec2d" default="vec2d(1,0)">
+  The velocity vector (x, y) determining movement per frame
+</ParamField>
+
+<ParamField path="gravity" type="float" default="0">
+  Gravity parameter (currently unused in implementation)
+</ParamField>
+
+### Usage Example
+
+```python game.py
+self.floater = movingRect(self.screen,
+    pos=vec2d(self.SCREEN_WIDTH/2, 0),
+    speed=vec2d(0,5))
+```
+
+### Collision Behavior
+
+The rectangle automatically reverses direction when hitting screen boundaries:
+
+```python widgets.py
+if self.pos.x + self.size.x > self.surfaceSize.x or self.pos.x < 0:
+    self.speed.x *= -1
+if self.pos.y + self.size.y > self.surfaceSize.y or self.pos.y < 0:
+    self.speed.y *= -1
+```
+
+<Note>
+  The collision check considers the full size of the rectangle, so it bounces when any edge touches the boundary.
+</Note>
+
+## movingImg
+
+Creates an image that moves around the screen with boundary collision detection.
+
+### Constructor
+
+```python
+movingImg(surface, image, pos=vec2d(0,0), speed=vec2d(1,0), gravity=1)
+```
+
+### Parameters
+
+<ParamField path="surface" type="pygame.Surface" required>
+  The pygame surface to which the image will draw itself
+</ParamField>
+
+<ParamField path="image" type="str" required>
+  Path to the image file to load
+</ParamField>
+
+<ParamField path="pos" type="vec2d" default="vec2d(0,0)">
+  The initial position of the image
+</ParamField>
+
+<ParamField path="speed" type="vec2d" default="vec2d(1,0)">
+  The velocity vector (x, y) determining movement per frame
+</ParamField>
+
+<ParamField path="gravity" type="float" default="1">
+  Gravity parameter (currently unused in implementation)
+</ParamField>
+
+### Usage Example
+
+```python game.py
+self.moveImg = movingImg(self.screen,
+    "images/toggle1.png",
+    pos=vec2d(0,self.SCREEN_HEIGHT*3/4),
+    speed=vec2d(5, 0))
+```
+
+### Collision Behavior
+
+Identical to movingRect - the image bounces off screen edges:
+
+```python widgets.py
+if self.pos.x + self.size.x > self.surfaceSize.x or self.pos.x < 0:
+    self.speed.x *= -1
+if self.pos.y + self.size.y > self.surfaceSize.y or self.pos.y < 0:
+    self.speed.y *= -1
+self.pos.x += self.speed.x
+self.pos.y += self.speed.y
+```
+
+## circles
+
+Creates a simple circular shape that can be drawn on the screen.
+
+### Constructor
+
+```python
+circles(surface, pos=vec2d(10,10), radius=5, bgcolor=(0,0,0))
+```
+
+### Parameters
+
+<ParamField path="surface" type="pygame.Surface" required>
+  The pygame surface to which the circle will draw itself
+</ParamField>
+
+<ParamField path="pos" type="vec2d" default="vec2d(10,10)">
+  The center position of the circle
+</ParamField>
+
+<ParamField path="radius" type="int" default="5">
+  The radius of the circle in pixels
+</ParamField>
+
+<ParamField path="bgcolor" type="tuple" default="(0,0,0)">
+  RGB color tuple for the circle
+</ParamField>
+
+### Usage Example
+
+```python game.py
+self.ball = circles(self.screen,
+    pos=vec2d(25,25),
+    radius=25)
+```
+
+### Drawing
+
+The circle is drawn using pygame's circle drawing function:
+
+```python widgets.py
+def draw(self):
+    pygame.draw.circle(self.surface, self.bgcolor, self.pos, self.radius)
+```
+
+<Note>
+  Unlike movingRect and movingImg, the circles widget does not have built-in movement or collision detection. It's described in the source as a "simple useless circle" for static display.
+</Note>
+
+## Common Patterns
+
+### Adding to World List
+
+Moving objects are typically added to a world list for batch rendering:
+
+```python game.py
+self.world = [self.button, self.togglebtn, self.clockImg, self.hand, 
+              self.textTest, self.moveImg, self.floater, self.ball]
+
+def draw(self):
+    self.draw_background()
+    
+    for obj in self.world:
+        obj.draw()
+```
+
+### Movement Patterns
+
+- **Horizontal movement**: `speed=vec2d(5, 0)`
+- **Vertical movement**: `speed=vec2d(0, 5)`
+- **Diagonal movement**: `speed=vec2d(3, 3)`
+- **Stationary**: `speed=vec2d(0, 0)`
+
+### Automatic Updates
+
+Both movingRect and movingImg update their position automatically in their `draw()` method:
+
+```python widgets.py
+self.pos.x += self.speed.x
+self.pos.y += self.speed.y
+self.rect = Rect(self.pos.x, self.pos.y, self.size.x, self.size.y)
+pygame.draw.rect(self.surface, self.color, self.rect)
+```
+
+<Tip>
+  To create bouncing diagonal movement, use equal x and y speed values like `vec2d(3, 3)`. The automatic collision detection will handle the bouncing at corners naturally.
+</Tip>
+
+<Warning>
+  The `gravity` parameter is defined in both movingRect and movingImg constructors but is not currently used in the implementation.
+</Warning>
+
+## Related Widgets
+
+- [Images](/widgets/images) - For static images without movement
+- [Box](/widgets/box) - For static rectangular containers

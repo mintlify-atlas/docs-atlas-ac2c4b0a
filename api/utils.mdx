@@ -1,0 +1,95 @@
+---
+title: "Timer"
+description: "Timer class for periodic callback execution"
+---
+
+## Overview
+
+The `Timer` class provides a simple mechanism for executing callback functions at regular intervals. It is designed to be updated with elapsed time and will call the callback synchronously when the interval expires.
+
+## Constructor
+
+### \_\_init\_\_()
+
+Creates a new Timer instance.
+
+```python
+def __init__(self, interval, callback, oneshot=False):
+```
+
+<ParamField path="interval" type="int">
+  The timer interval in milliseconds. The callback will be executed each time this interval elapses.
+</ParamField>
+
+<ParamField path="callback" type="callable">
+  A callable function or method to execute when the interval expires. This function should take no arguments.
+</ParamField>
+
+<ParamField path="oneshot" type="bool" default="False">
+  If True, the timer will only execute the callback once and then become inactive. If False, the timer will continue to execute the callback at each interval.
+</ParamField>
+
+## Attributes
+
+The Timer instance maintains the following attributes:
+
+- `interval` (int): The timer interval in milliseconds
+- `callback` (callable): The callback function to execute
+- `oneshot` (bool): Whether this is a one-shot timer
+- `time` (int): Accumulated time since last callback execution
+- `alive` (bool): Whether the timer is still active
+
+## Methods
+
+### update()
+
+Updates the timer with the elapsed time and executes the callback if the interval has expired.
+
+```python
+def update(self, time_passed):
+```
+
+<ParamField path="time_passed" type="int">
+  The amount of time that has passed since the last call to update(), in milliseconds.
+</ParamField>
+
+This method accumulates the passed time and checks if the interval has been reached. When the interval is exceeded:
+1. The callback function is executed
+2. The accumulated time is reduced by the interval amount
+3. If `oneshot` is True, the timer is marked as inactive (alive = False)
+
+If the timer is not alive, this method returns immediately without doing anything.
+
+## Usage Example
+
+```python
+from utils import Timer
+
+def print_message():
+    print("Timer expired!")
+
+# Create a timer that fires every 1000ms (1 second)
+timer = Timer(interval=1000, callback=print_message)
+
+# In your game loop:
+while True:
+    time_passed = clock.tick()  # Get milliseconds since last frame
+    timer.update(time_passed)   # Update timer
+```
+
+## One-Shot Timer Example
+
+```python
+def spawn_enemy():
+    # Spawn an enemy after a delay
+    enemy = Enemy()
+    enemies.append(enemy)
+
+# Create a one-shot timer that fires once after 3 seconds
+spawn_timer = Timer(interval=3000, callback=spawn_enemy, oneshot=True)
+
+# In your game loop:
+while True:
+    time_passed = clock.tick()
+    spawn_timer.update(time_passed)  # Will only fire once
+```

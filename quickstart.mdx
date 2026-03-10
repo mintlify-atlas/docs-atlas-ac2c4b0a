@@ -1,80 +1,173 @@
 ---
 title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+description: "Get Serenity Valley Game up and running in minutes"
 ---
 
-## Get started in three steps
+## Get Started with Serenity Valley Game
 
-Get your documentation site running locally and make your first customization.
+This guide will walk you through installing, running, and playing Serenity Valley Game.
 
-### Step 1: Set up your local environment
+<Steps>
+  <Step title="Install Pygame">
+    Serenity Valley Game is built on Pygame. Install it using pip:
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+    ```bash
+    pip install pygame
+    ```
 
-### Step 2: Deploy your changes
+    <Note>
+      Make sure you have Python 2.x installed, as the game is written in Python 2.
+    </Note>
+  </Step>
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+  <Step title="Clone or Download the Project">
+    Get the game source code on your local machine:
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+    ```bash
+    git clone <repository-url>
+    cd serenity-valley-game
+    ```
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+    Or download and extract the source files to a directory of your choice.
+  </Step>
 
-### Step 3: Go live
+  <Step title="Run the Game">
+    Navigate to the source directory and run the main game file:
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+    ```bash
+    python game.py
+    ```
 
-## Next steps
+    The game window will open with dimensions 580x500 pixels, displaying a wood-textured background.
+  </Step>
+</Steps>
 
-Now that you have your docs running, explore these key features:
+## What You'll See
+
+When the game starts, the initialization sequence prints several messages to the console:
+
+```python
+print "Setting global Game params."
+# ...
+print "Pygame started."
+print "Configuring tboard MessageBoard params."
+# ...
+print "Done setting game options, exiting Game init."
+print "Creating game object..."
+print "Done. Starting run method"
+print "Beginning run sequence."
+```
+
+The game window displays various UI elements including:
+
+- A wood-textured background
+- A message board showing "This is a test."
+- Toggle buttons with custom images
+- A clock widget with a rotating hand
+- A text entry field at the bottom
+- Moving objects (rectangles, images, and circles)
+- An optional grid overlay
+
+## Basic Controls
 
 <CardGroup cols={2}>
+  <Card title="Pause/Resume" icon="pause">
+    Press **SPACE** to pause or resume the game.
+    
+    ```python
+    if event.key == pygame.K_SPACE:
+        self.paused = not self.paused
+    ```
+  </Card>
 
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Toggle Grid" icon="grid">
+    Press **G** to show or hide the debug grid overlay.
+    
+    ```python
+    elif event.key == pygame.K_g:
+        # toggle draw grid
+        self.options['draw_grid'] = not self.options['draw_grid']
+    ```
+  </Card>
 </CardGroup>
 
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+  The game runs at 30 FPS, managed by the pygame clock timer in game.py:206.
 </Note>
+
+## Game Structure
+
+The game is organized into several key files:
+
+<CodeGroup>
+
+```python game.py
+# Main game loop and initialization
+class Game(object):
+    SCREEN_WIDTH, SCREEN_HEIGHT = 580, 500
+    GRID_SIZE = 20
+    
+    def run(self):
+        while True:
+            self.time_passed = self.clock.tick(30)
+            # Event handling and game logic
+```
+
+```python widgets.py
+# UI components: MessageBoard, Button, Images
+class MessageBoard(object):
+    """ A rectangular "board" for displaying messages on the screen """
+    
+class Button(object):
+    """ Rectangular button with click events """
+```
+
+```python vec2d.py
+# 2D vector operations
+class vec2d(object):
+    """2d vector class, supports vector and scalar operators"""
+    def __init__(self, x_or_pair, y = None):
+        # Vector initialization
+```
+
+</CodeGroup>
+
+## Understanding the Coordinate System
+
+The game uses a grid-based coordinate system with utilities for converting between pixel positions and grid coordinates:
+
+```python
+def xy2coord(self, pos):
+    """ Convert a (x, y) pair to a (nrow, ncol) coordinate """
+    x, y = (pos[0] - self.field_rect.left, pos[1] - self.field_rect.top)
+    return (int(y) / self.GRID_SIZE, int(x) / self.GRID_SIZE)
+
+def coord2xy_mid(self, coord):
+    """ Convert a (nrow, ncol) coordinate to a (x, y) pair,
+        where x,y is the middle of the square at the coord
+    """
+    nrow, ncol = coord
+    return (
+        self.field_rect.left + ncol * self.GRID_SIZE + self.GRID_SIZE / 2, 
+        self.field_rect.top + nrow * self.GRID_SIZE + self.GRID_SIZE / 2)
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Explore Widgets" icon="window" href="/widgets/overview">
+    Learn about UI components like MessageBoard, Button, and text entry fields.
+  </Card>
+
+  <Card title="Vector Math" icon="calculator" href="/utilities/vec2d">
+    Understand the vec2d class for 2D vector operations.
+  </Card>
+
+  <Card title="Animations" icon="film" href="/utilities/animation">
+    Create simple animations using the SimpleAnimation class.
+  </Card>
+
+  <Card title="Game Architecture" icon="code" href="/concepts/architecture">
+    Understand the game structure and how components work together.
+  </Card>
+</CardGroup>

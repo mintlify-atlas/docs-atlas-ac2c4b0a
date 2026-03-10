@@ -1,0 +1,202 @@
+---
+title: Text Entry Widget
+description: Interactive text input field for capturing user keyboard input
+---
+
+The `textEntry` widget provides an interactive text input field that captures keyboard input from the user.
+
+## Constructor
+
+```python
+textEntry(surface, pos=vec2d(0, 0), size=vec2d(200,50), text="",
+          textcolor=(0,0,0), padding=0, bgcolor=(255,255,255))
+```
+
+### Parameters
+
+<ParamField path="surface" type="pygame.Surface" required>
+  The pygame surface to which the text entry will draw itself
+</ParamField>
+
+<ParamField path="pos" type="vec2d" default="vec2d(0, 0)">
+  The position of the text entry field on the surface
+</ParamField>
+
+<ParamField path="size" type="vec2d" default="vec2d(200,50)">
+  The width and height of the text entry field
+</ParamField>
+
+<ParamField path="text" type="str" default="">
+  The initial text in the field
+</ParamField>
+
+<ParamField path="textcolor" type="tuple" default="(0,0,0)">
+  RGB color tuple for the text
+</ParamField>
+
+<ParamField path="padding" type="int" default="0">
+  Padding around the text (currently unused in implementation)
+</ParamField>
+
+<ParamField path="bgcolor" type="tuple" default="(255,255,255)">
+  RGB color tuple for the background
+</ParamField>
+
+## Properties
+
+### text
+
+The current text content of the input field. Can be read or modified directly.
+
+### clicked
+
+Boolean indicating whether the field is currently active (clicked). When `True`, the field captures keyboard input.
+
+### rect
+
+The pygame.Rect representing the text entry's bounding box.
+
+## Methods
+
+### draw()
+
+Renders the text entry field and handles keyboard input when active.
+
+```python
+text_entry.draw()
+```
+
+### mouse_click_event(pos)
+
+Handles mouse click events to activate/deactivate the field.
+
+<ParamField path="pos" type="tuple">
+  The (x, y) position of the mouse click
+</ParamField>
+
+```python
+text_entry.mouse_click_event(event.pos)
+```
+
+## Usage Example
+
+From the main game:
+
+```python game.py
+self.textTest = textEntry(self.screen, 
+    pos=vec2d(0, self.SCREEN_HEIGHT-50),
+    size=vec2d(self.SCREEN_WIDTH,50))
+
+self.textEntries = [self.textTest]
+```
+
+In the game loop, text entries need special handling to prevent keyboard shortcuts from firing when typing:
+
+```python game.py
+active = False 
+for entry in self.textEntries:
+    if entry.clicked:
+        active = True
+
+for event in pygame.event.get():
+    if event.type == pygame.QUIT:
+        self.quit()
+    elif event.type == pygame.KEYDOWN and not active:
+        # Handle game keyboard shortcuts only when no text entry is active
+        if event.key == pygame.K_SPACE:
+            self.paused = not self.paused
+    elif (event.type == pygame.MOUSEBUTTONDOWN and event.button == 1):
+        for entry in self.textEntries:
+            entry.mouse_click_event(event.pos)
+```
+
+## Keyboard Input Handling
+
+The text entry captures various keyboard inputs when active:
+
+### Single Characters
+
+Regular alphanumeric keys are appended to the text (if there's room):
+
+```python widgets.py
+if len(key) == 1 and self.font.size(self.text)[0] <= self.size.x:
+    self.text += key
+```
+
+### Special Keys
+
+- **Tab**: Adds 4 spaces
+- **Space**: Adds a space character
+- **Backspace**: Removes the last character
+
+```python widgets.py
+if key == "tab":
+    self.text += "    "
+elif key == "space":
+    self.text += " "
+elif key == "backspace":
+    self.text = self.text[:-1]
+```
+
+### Key Repeat Delay
+
+The widget includes a delay mechanism to prevent overly rapid key repeats:
+
+```python widgets.py
+if self.lastKey == key and self.delay <= 1:
+    self.delay += .4
+else:
+    # Process the key
+    self.delay = 0
+    self.lastKey = key
+```
+
+<Note>
+  The source code includes a comment that the delay time needs improvement: "can't seem to find a decent delay time please fix"
+</Note>
+
+## Text Wrapping
+
+Currently, the text entry does not wrap to multiple lines. Text stops being added when it reaches the width limit:
+
+```python widgets.py
+if len(key) == 1 and self.font.size(self.text)[0] <= self.size.x:
+    self.text += key
+```
+
+<Tip>
+  The source code notes: "could easily create a wrap using lists and proper indexing, will do later"
+</Tip>
+
+## Drawing Implementation
+
+The field is drawn as a white rectangle with black text:
+
+```python widgets.py
+pygame.draw.rect(self.surface, (255,255,255), self.rect)
+self.surface.blit(self.textOverlay, self.textRect)
+```
+
+## Click Detection
+
+Clicking inside the text entry toggles its active state:
+
+```python widgets.py
+def mouse_click_event(self, pos):
+    if self._point_is_inside(vec2d(pos)):
+        self.clicked = not self.clicked
+
+def _point_is_inside(self, mpos):
+    if mpos.x > self.pos.x and mpos.x < self.pos.x+self.size.x:
+        if mpos.y > self.pos.y and mpos.y < self.pos.y+self.size.y:
+            return True
+```
+
+<Warning>
+  Make sure to check if any text entries are active before processing keyboard shortcuts in your game, otherwise users will trigger game actions while typing.
+</Warning>
+
+## Related Widgets
+
+- [Button](/widgets/button) - Another interactive widget for user interaction
+- [MessageBoard](/widgets/messageboard) - For displaying static text instead of capturing input

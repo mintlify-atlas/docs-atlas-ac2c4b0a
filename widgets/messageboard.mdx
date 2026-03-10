@@ -1,0 +1,149 @@
+---
+title: MessageBoard Widget
+description: Display multi-line text messages with customizable fonts and colors
+---
+
+The `MessageBoard` widget provides a rectangular board for displaying text messages on the screen. It uses a [Box](/widgets/box) widget with text rendered inside.
+
+## Constructor
+
+```python
+MessageBoard(surface, rect, text, padding, font=('arial', 20), 
+             font_color=Color('white'), bgcolor=Color('gray25'),
+             border_width=0, border_color=Color('black'))
+```
+
+### Parameters
+
+<ParamField path="surface" type="pygame.Surface" required>
+  The pygame surface to which the widget will draw itself
+</ParamField>
+
+<ParamField path="rect" type="pygame.Rect" required>
+  The rectangle defining the location and size of the message board
+</ParamField>
+
+<ParamField path="text" type="list[str]" required>
+  The initial text of the message board as a list of lines
+</ParamField>
+
+<ParamField path="padding" type="int" required>
+  Padding in pixels between the text and the border
+</ParamField>
+
+<ParamField path="font" type="tuple" default="('arial', 20)">
+  The font as a (name, size) tuple
+</ParamField>
+
+<ParamField path="font_color" type="pygame.Color" default="Color('white')">
+  The color of the text
+</ParamField>
+
+<ParamField path="bgcolor" type="pygame.Color" default="Color('gray25')">
+  The background color of the message board
+</ParamField>
+
+<ParamField path="border_width" type="int" default="0">
+  Width of the border (same as Box widget)
+</ParamField>
+
+<ParamField path="border_color" type="pygame.Color" default="Color('black')">
+  Color of the border (same as Box widget)
+</ParamField>
+
+## Properties
+
+### text
+
+The text displayed on the message board. Can be retrieved and changed dynamically:
+
+```python
+board.text = ['New line 1', 'New line 2']
+```
+
+## Methods
+
+### draw()
+
+Renders the message board to the surface. Draws the box first, then renders each line of text.
+
+```python
+board.draw()
+```
+
+## Usage Example
+
+From the main game initialization:
+
+```python game.py
+self.tboard_text = ['This is a test.']
+self.tboard_x = 120
+self.tboard_y = 120
+self.tboard_width = 125
+self.tboard_height = 30
+self.tboard_rect = pygame.Rect(self.tboard_x, self.tboard_y, 
+                               self.tboard_width, self.tboard_height)
+self.tboard_bgcolor = pygame.Color(50, 20, 0)
+
+self.tboard = MessageBoard(self.screen,
+    rect=self.tboard_rect,
+    bgcolor=self.tboard_bgcolor,
+    border_width=4,
+    border_color=pygame.Color('black'),
+    text=self.tboard_text,
+    padding=5,
+    font=('comic sans', 18),
+    font_color=pygame.Color('yellow'))
+```
+
+Then in the draw loop:
+
+```python game.py
+def draw(self):
+    self.draw_background()
+    
+    if self.options['draw_grid']:
+        self.draw_grid()
+        
+    self.tboard.draw()
+    
+    for obj in self.world:
+        obj.draw()
+```
+
+## Layout Validation
+
+The MessageBoard validates that text fits within its bounds (including padding). If a line is too long or tall, it raises a `LayoutError`:
+
+```python widgets.py
+if (line_sf.get_width() + x_pos + self.padding > self.rect.right or 
+    line_sf.get_height() + y_pos + self.padding > self.rect.bottom):
+    raise LayoutError('Cannot fit line "%s" in widget' % line)
+```
+
+<Warning>
+  Make sure your MessageBoard rect is large enough to accommodate your text with padding and borders, or you'll get a `LayoutError` at runtime.
+</Warning>
+
+## Implementation Details
+
+The widget renders text line by line, positioning each line below the previous one:
+
+```python widgets.py
+x_pos = text_rect.left
+y_pos = text_rect.top 
+
+for line in self.text:
+    line_sf = self.font.render(line, True, self.font_color, self.bgcolor)
+    self.surface.blit(line_sf, (x_pos+self.padding, y_pos+self.padding))
+    y_pos += line_sf.get_height()
+```
+
+<Tip>
+  To update the message board text dynamically, simply assign a new list to the `text` property. The changes will appear on the next `draw()` call.
+</Tip>
+
+## Related Widgets
+
+- [Box](/widgets/box) - The underlying container used by MessageBoard
+- [Text Entry](/widgets/text-entry) - For capturing user input instead of displaying static text
