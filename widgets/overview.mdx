@@ -88,6 +88,28 @@ def draw(self):
 2. **Event Handling**: Process user input (for interactive widgets)
 3. **Drawing**: Call `draw()` method each frame to render
 
+## Exception Classes
+
+The widget system defines two custom exceptions:
+
+### WidgetError
+
+Base exception class for widget-related errors.
+
+```python
+class WidgetError(Exception): pass
+```
+
+### LayoutError
+
+Raised when widget layout constraints are violated (e.g., text too large for MessageBoard).
+
+```python
+class LayoutError(WidgetError): pass
+```
+
+This exception is raised by MessageBoard when text cannot fit within the specified dimensions with padding.
+
 <Note>
   Unless otherwise specified, all rectangles are `pygame.Rect` instances, and all colors are `pygame.Color` instances.
 </Note>
